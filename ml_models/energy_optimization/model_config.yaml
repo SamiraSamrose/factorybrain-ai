@@ -1,0 +1,35 @@
+model_name: rul_estimator
+version: 1.0.0
+description: Gradient Boosting Regressor for estimating remaining useful life
+
+features:
+  - cycle
+  - temperature
+  - vibration
+  - pressure
+  - power_consumption
+
+hyperparameters:
+  n_estimators: 200
+  learning_rate: 0.05
+  max_depth: 10
+  min_samples_split: 15
+  random_state: 42
+
+thresholds:
+  maintenance_hours: 168
+  critical_hours: 48
+  warning_hours: 120
+
+preprocessing:
+  scaling: StandardScaler
+  feature_engineering: true
+
+training:
+  test_size: 0.2
+  cross_validation: 5
+
+performance_targets:
+  min_r2_score: 0.80
+  max_mae: 15.0
+  max_rmse: 25.0

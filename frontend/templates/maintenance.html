@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryBrain AI - Maintenance</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>FactoryBrain AI</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/machines.html">Machines</a></li>
+                <li><a href="/analytics.html">Analytics</a></li>
+                <li><a href="/maintenance.html" class="active">Maintenance</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-info" id="userInfo"></div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Maintenance Management</h1>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="showCreateTicketModal()">Create Ticket</button>
+                    <button class="btn-secondary" onclick="showProcurementModal()">Request Parts</button>
+                </div>
+            </header>
+            
+            <div class="filter-bar">
+                <select id="statusFilter" onchange="loadTickets()">
+                    <option value="">All Status</option>
+                    <option value="open">Open</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="pending_parts">Pending Parts</option>
+                    <option value="completed">Completed</option>
+                </select>
+                
+                <select id="priorityFilter" onchange="loadTickets()">
+                    <option value="">All Priorities</option>
+                    <option value="critical">Critical</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+                
+                <input type="text" id="machineFilter" placeholder="Machine ID" onchange="loadTickets()">
+            </div>
+            
+            <div class="maintenance-stats">
+                <div class="stat-card">
+                    <h4>Open Tickets</h4>
+                    <p id="openTickets">--</p>
+                </div>
+                <div class="stat-card">
+                    <h4>In Progress</h4>
+                    <p id="inProgressTickets">--</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Avg Resolution Time</h4>
+                    <p id="avgResolution">--</p>
+                </div>
+                <div class="stat-card">
+                    <h4>Pending Orders</h4>
+                    <p id="pendingOrders">--</p>
+                </div>
+            </div>
+            
+            <div class="tickets-container">
+                <h3>Maintenance Tickets</h3>
+                <table class="tickets-table">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Machine</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Assigned To</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div class="procurement-container">
+                <h3>Procurement Orders</h3>
+                <table class="procurement-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Part Name</th>
+                            <th>Quantity</th>
+                            <th>Supplier</th>
+                            <th>Price</th>
+                            <th>Savings</th>
+                            <th>Status</th>
+                            <th>Delivery</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="procurementTableBody"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+    
+    <div id="createTicketModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCreateTicketModal()">&times;</span>
+            <h2>Create Maintenance Ticket</h2>
+            <form id="createTicketForm">
+                <div class="form-group">
+                    <label for="ticketMachineId">Machine ID</label>
+                    <input type="text" id="ticketMachineId" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketTitle">Title</label>
+                    <input type="text" id="ticketTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketDescription">Description</label>
+                    <textarea id="ticketDescription" rows="4" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketPriority">Priority</label>
+                    <select id="ticketPriority" required>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="ticketFailureType">Failure Type</label>
+                    <select id="ticketFailureType">
+                        <option value="">Select type</option>
+                        <option value="overheating">Overheating</option>
+                        <option value="mechanical_stress">Mechanical Stress</option>
+                        <option value="pressure_abnormality">Pressure Abnormality</option>
+                        <option value="electrical">Electrical</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn-primary">Create Ticket</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="procurementModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeProcurementModal()">&times;</span>
+            <h2>Request Spare Parts</h2>
+            <form id="procurementForm">
+                <div class="form-group">
+                    <label for="partName">Part Name</label>
+                    <input type="text" id="partName" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="partNumber">Part Number</label>
+                    <input type="text" id="partNumber" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="urgency">Urgency</label>
+                    <select id="urgency" required>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="critical">Critical</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="relatedMachine">Related Machine (Optional)</label>
+                    <input type="text" id="relatedMachine">
+                </div>
+                
+                <div class="form-group">
+                    <label for="relatedTicket">Related Ticket (Optional)</label>
+                    <input type="text" id="relatedTicket">
+                </div>
+                
+                <button type="submit" class="btn-primary">Submit Request</button>
+            </form>
+        </div>
+    </div>
+    
+    <div id="ticketDetailsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="close" onclick="closeTicketDetailsModal()">&times;</span>
+            <h2 id="ticketDetailsTitle"></h2>
+            
+            <div class="ticket-details">
+                <div class="detail-section">
+                    <h3>Information</h3>
+                    <div id="ticketInfo"></div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Repair Steps</h3>
+                    <div id="repairSteps"></div>
+                </div>
+                
+                <div class="detail-section">
+                    <h3>Actions</h3>
+                    <div id="ticketActions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        checkAuth();
+        displayUserInfo();
+        loadTickets();
+        loadProcurementOrders();
+        loadMaintenanceStats();
+        
+        async function loadTickets() {
+            const token = localStorage.getItem('access_token');
+            const status = document.getElementById('statusFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const machineId = document.getElementById('machineFilter').value;
+            
+            let url = `${API_BASE}/maintenance/tickets?limit=100`;
+            if (status) url += `&status=${status}`;
+            if (priority) url += `&priority=${priority}`;
+            if (machineId) url += `&machine_id=${machineId}`;
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const tickets = await response.json();
+                    displayTickets(tickets);
+                }
+            } catch (error) {
+                console.error('Error loading tickets:', error);
+            }
+        }
+        
+        function displayTickets(tickets) {
+            const tbody = document.getElementById('ticketsTableBody');
+            tbody.innerHTML = '';
+            
+            tickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${ticket.ticket_id}</td>
+                    <td>${ticket.machine_id}</td>
+                    <td>${ticket.title}</td>
+                    <td><span class="status-badge ${ticket.status}">${ticket.status.replace('_', ' ')}</span></td>
+                    <td><span class="priority-badge ${ticket.priority}">${ticket.priority}</span></td>
+                    <td>${ticket.assigned_to || 'Unassigned'}</td>
+                    <td>${new Date(ticket.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn-small" onclick="viewTicketDetails('${ticket.ticket_id}')">View</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        async function loadProcurementOrders() {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/procurement/orders?limit=50`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const orders = await response.json();
+                    displayProcurementOrders(orders);
+                }
+            } catch (error) {
+                console.error('Error loading procurement orders:', error);
+            }
+        }
+        
+        function displayProcurementOrders(orders) {
+            const tbody = document.getElementById('procurementTableBody');
+            tbody.innerHTML = '';
+            
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.order_id}</td>
+                    <td>${order.part_name}</td>
+                    <td>${order.quantity}</td>
+                    <td>${order.supplier}</td>
+                    <td>$${order.total_price.toFixed(2)}</td>
+                    <td class="savings">$${order.savings.toFixed(2)}</td>
+                    <td><span class="status-badge ${order.status}">${order.status.replace('_', ' ')}</span></td>
+                    <td>${new Date(order.estimated_delivery).toLocaleDateString()}</td>
+                    <td>
+                        ${order.status === 'requested' ? `<button class="btn-small" onclick="approveOrder('${order.order_id}')">Approve</button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        async function loadMaintenanceStats() {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const [maintenanceResponse, procurementResponse] = await Promise.all([
+                    fetch(`${API_BASE}/analytics/maintenance/statistics?days=30`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    }),
+                    fetch(`${API_BASE}/procurement/statistics/summary?days=30`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    })
+                ]);
+                
+                if (maintenanceResponse.ok && procurementResponse.ok) {
+                    const maintenanceData = await maintenanceResponse.json();
+                    const procurementData = await procurementResponse.json();
+                    
+                    document.getElementById('openTickets').textContent = maintenanceData.pending_tickets;
+                    document.getElementById('inProgressTickets').textContent = maintenanceData.completed_tickets - maintenanceData.pending_tickets;
+                    document.getElementById('avgResolution').textContent = maintenanceData.average_resolution_time_hours.toFixed(1) + ' hrs';
+                    document.getElementById('pendingOrders').textContent = procurementData.pending_orders;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+        
+        function showCreateTicketModal() {
+            document.getElementById('createTicketModal').style.display = 'block';
+        }
+        
+        function closeCreateTicketModal() {
+            document.getElementById('createTicketModal').style.display = 'none';
+            document.getElementById('createTicketForm').reset();
+        }
+        
+        document.getElementById('createTicketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('access_token');
+            const ticketData = {
+                machine_id: document.getElementById('ticketMachineId').value,
+                title: document.getElementById('ticketTitle').value,
+                description: document.getElementById('ticketDescription').value,
+                priority: document.getElementById('ticketPriority').value,
+                failure_type: document.getElementById('ticketFailureType').value || null
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/tickets`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(ticketData)
+                });
+                
+                if (response.ok) {
+                    closeCreateTicketModal();
+                    loadTickets();
+                    alert('Ticket created successfully');
+                }
+            } catch (error) {
+                console.error('Error creating ticket:', error);
+                alert('Failed to create ticket');
+            }
+        });
+        
+        function showProcurementModal() {
+            document.getElementById('procurementModal').style.display = 'block';
+        }
+        
+        function closeProcurementModal() {
+            document.getElementById('procurementModal').style.display = 'none';
+            document.getElementById('procurementForm').reset();
+        }
+        
+        document.getElementById('procurementForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const token = localStorage.getItem('access_token');
+            const orderData = {
+                part_name: document.getElementById('partName').value,
+                part_number: document.getElementById('partNumber').value,
+                quantity: parseInt(document.getElementById('quantity').value),
+                urgency: document.getElementById('urgency').value,
+                machine_id: document.getElementById('relatedMachine').value || null,
+                ticket_id: document.getElementById('relatedTicket').value || null
+            };
+            
+            try {
+                const response = await fetch(`${API_BASE}/procurement/orders`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                if (response.ok) {
+                    closeProcurementModal();
+                    loadProcurementOrders();
+                    alert('Procurement request submitted successfully');
+                }
+            } catch (error) {
+                console.error('Error creating order:', error);
+                alert('Failed to create procurement order');
+            }
+        });
+        
+        async function viewTicketDetails(ticketId) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/tickets/${ticketId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const ticket = await response.json();
+                    showTicketDetailsModal(ticket);
+                }
+            } catch (error) {
+                console.error('Error loading ticket details:', error);
+            }
+        }
+        
+        function showTicketDetailsModal(ticket) {
+            document.getElementById('ticketDetailsTitle').textContent = ticket.title;
+            
+            document.getElementById('ticketInfo').innerHTML = `
+                <p><strong>Ticket ID:</strong> ${ticket.ticket_id}</p>
+                <p><strong>Machine:</strong> ${ticket.machine_id}</p>
+                <p><strong>Status:</strong> <span class="status-badge ${ticket.status}">${ticket.status.replace('_', ' ')}</span></p>
+                <p><strong>Priority:</strong> <span class="priority-badge ${ticket.priority}">${ticket.priority}</span></p>
+                <p><strong>Assigned To:</strong> ${ticket.assigned_to || 'Unassigned'}</p>
+                <p><strong>Reported By:</strong> ${ticket.reported_by}</p>
+                <p><strong>Failure Type:</strong> ${ticket.failure_type || 'N/A'}</p>
+                <p><strong>Description:</strong> ${ticket.description}</p>
+                <p><strong>Estimated Downtime:</strong> ${ticket.estimated_downtime_hours ? ticket.estimated_downtime_hours.toFixed(1) + ' hours' : 'N/A'}</p>
+                <p><strong>Cost Estimate:</strong> ${ticket.cost_estimate ? '$' + ticket.cost_estimate.toFixed(2) : 'N/A'}</p>
+            `;
+            
+            document.getElementById('repairSteps').innerHTML = ticket.repair_steps || 'No repair steps documented yet';
+            
+            const user = JSON.parse(localStorage.getItem('user'));
+            const actions = [];
+            
+            if (ticket.status === 'open' && (user.role === 'supervisor' || user.role === 'admin')) {
+                actions.push(`<button class="btn-primary" onclick="assignTicket('${ticket.ticket_id}')">Assign Ticket</button>`);
+            }
+            
+            if (ticket.status === 'in_progress') {
+                actions.push(`<button class="btn-success" onclick="completeTicket('${ticket.ticket_id}')">Mark Complete</button>`);
+            }
+            
+            document.getElementById('ticketActions').innerHTML = actions.join(' ') || 'No available actions';
+            
+            document.getElementById('ticketDetailsModal').style.display = 'block';
+        }
+        
+        function closeTicketDetailsModal() {
+            document.getElementById('ticketDetailsModal').style.display = 'none';
+        }
+        
+        async function approveOrder(orderId) {
+            const token = localStorage.getItem('access_token');
+            const user = JSON.parse(localStorage.getItem('user'));
+            
+            if (user.role !== 'supervisor' && user.role !== 'admin') {
+                alert('You do not have permission to approve orders');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/procurement/orders/${orderId}/approve`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    loadProcurementOrders();
+                    alert('Order approved successfully');
+                }
+            } catch (error) {
+                console.error('Error approving order:', error);
+                alert('Failed to approve order');
+            }
+        }
+        
+        async function assignTicket(ticketId) {
+            const technician = prompt('Enter technician username:');
+            if (!technician) return;
+            
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/tickets/${ticketId}/assign`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ technician })
+                });
+                
+                if (response.ok) {
+                    closeTicketDetailsModal();
+                    loadTickets();
+                    alert('Ticket assigned successfully');
+                }
+            } catch (error) {
+                console.error('Error assigning ticket:', error);
+                alert('Failed to assign ticket');
+            }
+        }
+        
+        async function completeTicket(ticketId) {
+            const notes = prompt('Enter completion notes:');
+            const downtime = prompt('Enter actual downtime (hours):');
+            const cost = prompt('Enter actual cost:');
+            
+            if (!notes || !downtime || !cost) return;
+            
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/maintenance/tickets/${ticketId}/complete`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        completion_notes: notes,
+                        actual_downtime: parseFloat(downtime),
+                        actual_cost: parseFloat(cost)
+                    })
+                });
+                
+                if (response.ok) {
+                    closeTicketDetailsModal();
+                    loadTickets();
+                    alert('Ticket completed successfully');
+                }
+            } catch (error) {
+                console.error('Error completing ticket:', error);
+                alert('Failed to complete ticket');
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryBrain AI - Machines</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>FactoryBrain AI</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/machines.html" class="active">Machines</a></li>
+                <li><a href="/analytics.html">Analytics</a></li>
+                <li><a href="/maintenance.html">Maintenance</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-info" id="userInfo"></div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Machine Monitoring</h1>
+                <div class="header-actions">
+                    <select id="statusFilter" onchange="filterMachines()">
+                        <option value="">All Status</option>
+                        <option value="operational">Operational</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="standby">Standby</option>
+                        <option value="offline">Offline</option>
+                    </select>
+                    <button class="btn-refresh" onclick="loadMachines()">Refresh</button>
+                </div>
+            </header>
+            
+            <div class="machines-table-container">
+                <table class="machines-table">
+                    <thead>
+                        <tr>
+                            <th>Machine ID</th>
+                            <th>Name</th>
+                            <th>Type</th>
+                            <th>Location</th>
+                            <th>Status</th>
+                            <th>Health</th>
+                            <th>Temperature</th>
+                            <th>Vibration</th>
+                            <th>Power (kW)</th>
+                            <th>Efficiency</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="machinesTableBody"></tbody>
+                </table>
+            </div>
+            
+            <div id="machineModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close" onclick="closeMachineModal()">&times;</span>
+                    <h2 id="modalMachineName"></h2>
+                    
+                    <div class="modal-tabs">
+                        <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                        <button class="tab-btn" onclick="showTab('history')">History</button>
+                        <button class="tab-btn" onclick="showTab('prediction')">Predictions</button>
+                    </div>
+                    
+                    <div id="overviewTab" class="tab-content active">
+                        <div class="machine-details-grid">
+                            <div class="detail-item">
+                                <label>Machine ID:</label>
+                                <span id="detailMachineId"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Type:</label>
+                                <span id="detailType"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Location:</label>
+                                <span id="detailLocation"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Status:</label>
+                                <span id="detailStatus"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Health Score:</label>
+                                <span id="detailHealth"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Temperature:</label>
+                                <span id="detailTemp"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Vibration:</label>
+                                <span id="detailVibration"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Pressure:</label>
+                                <span id="detailPressure"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Power Consumption:</label>
+                                <span id="detailPower"></span>
+                            </div>
+                            <div class="detail-item">
+                                <label>Efficiency:</label>
+                                <span id="detailEfficiency"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="historyTab" class="tab-content">
+                        <canvas id="machineHistoryChart"></canvas>
+                    </div>
+                    
+                    <div id="predictionTab" class="tab-content">
+                        <div id="predictionResults"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        checkAuth();
+        displayUserInfo();
+        loadMachines();
+        
+        async function loadMachines() {
+            const token = localStorage.getItem('access_token');
+            const statusFilter = document.getElementById('statusFilter').value;
+            
+            let url = `${API_BASE}/machines/`;
+            if (statusFilter) {
+                url += `?status=${statusFilter}`;
+            }
+            
+            try {
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const machines = await response.json();
+                    displayMachines(machines);
+                }
+            } catch (error) {
+                console.error('Error loading machines:', error);
+            }
+        }
+        
+        function displayMachines(machines) {
+            const tbody = document.getElementById('machinesTableBody');
+            tbody.innerHTML = '';
+            
+            machines.forEach(machine => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${machine.machine_id}</td>
+                    <td>${machine.name}</td>
+                    <td>${machine.type}</td>
+                    <td>${machine.location}</td>
+                    <td><span class="status-badge ${machine.status}">${machine.status}</span></td>
+                    <td><span class="health-score ${getHealthClass(machine.health_score)}">${machine.health_score.toFixed(1)}%</span></td>
+                    <td>${machine.temperature ? machine.temperature.toFixed(1) + '°C' : '--'}</td>
+                    <td>${machine.vibration ? machine.vibration.toFixed(2) : '--'}</td>
+                    <td>${machine.power_consumption ? machine.power_consumption.toFixed(1) : '--'}</td>
+                    <td>${machine.efficiency ? machine.efficiency.toFixed(1) + '%' : '--'}</td>
+                    <td>
+                        <button class="btn-small" onclick="viewMachineDetails('${machine.machine_id}')">View</button>
+                    </td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+        
+        function getHealthClass(health) {
+            if (health >= 80) return 'good';
+            if (health >= 60) return 'warning';
+            return 'critical';
+        }
+        
+        function filterMachines() {
+            loadMachines();
+        }
+        
+        async function viewMachineDetails(machineId) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/machines/${machineId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const machine = await response.json();
+                    showMachineModal(machine);
+                }
+            } catch (error) {
+                console.error('Error loading machine details:', error);
+            }
+        }
+        
+        function showMachineModal(machine) {
+            document.getElementById('modalMachineName').textContent = machine.name;
+            document.getElementById('detailMachineId').textContent = machine.machine_id;
+            document.getElementById('detailType').textContent = machine.type;
+            document.getElementById('detailLocation').textContent = machine.location;
+            document.getElementById('detailStatus').innerHTML = `<span class="status-badge ${machine.status}">${machine.status}</span>`;
+            document.getElementById('detailHealth').textContent = machine.health_score.toFixed(1) + '%';
+            document.getElementById('detailTemp').textContent = machine.temperature ? machine.temperature.toFixed(1) + '°C' : '--';
+            document.getElementById('detailVibration').textContent = machine.vibration ? machine.vibration.toFixed(2) : '--';
+            document.getElementById('detailPressure').textContent = machine.pressure ? machine.pressure.toFixed(1) : '--';
+            document.getElementById('detailPower').textContent = machine.power_consumption ? machine.power_consumption.toFixed(1) + ' kW' : '--';
+            document.getElementById('detailEfficiency').textContent = machine.efficiency ? machine.efficiency.toFixed(1) + '%' : '--';
+            
+            document.getElementById('machineModal').style.display = 'block';
+            
+            loadMachineHistory(machine.machine_id);
+        }
+        
+        function closeMachineModal() {
+            document.getElementById('machineModal').style.display = 'none';
+        }
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName + 'Tab').classList.add('active');
+        }
+        
+        async function loadMachineHistory(machineId) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/machines/${machineId}/history?hours=24`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayMachineHistory(data.history);
+                }
+            } catch (error) {
+                console.error('Error loading machine history:', error);
+            }
+        }
+        
+        function displayMachineHistory(history) {
+            const ctx = document.getElementById('machineHistoryChart');
+            
+            if (window.machineHistoryChartInstance) {
+                window.machineHistoryChartInstance.destroy();
+            }
+            
+            const labels = history.map(h => new Date(h.timestamp).toLocaleTimeString());
+            
+            window.machineHistoryChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Temperature (°C)',
+                        data: history.map(h => h.temperature),
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        yAxisID: 'y'
+                    }, {
+                        label: 'Vibration',
+                        data: history.map(h => h.vibration),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                        yAxisID: 'y1'
+                    }, {
+                        label: 'Health Score (%)',
+                        data: history.map(h => h.health_score),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        yAxisID: 'y2'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left'
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        y2: {
+                            type: 'linear',
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

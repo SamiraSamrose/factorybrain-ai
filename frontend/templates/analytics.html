@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryBrain AI - Analytics</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>FactoryBrain AI</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/machines.html">Machines</a></li>
+                <li><a href="/analytics.html" class="active">Analytics</a></li>
+                <li><a href="/maintenance.html">Maintenance</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-info" id="userInfo"></div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Analytics & Reports</h1>
+                <div class="header-actions">
+                    <select id="timeRange" onchange="loadAnalytics()">
+                        <option value="24">Last 24 Hours</option>
+                        <option value="168">Last 7 Days</option>
+                        <option value="720">Last 30 Days</option>
+                    </select>
+                    <button class="btn-export" onclick="exportReport()">Export Report</button>
+                </div>
+            </header>
+            
+            <div class="analytics-summary">
+                <div class="summary-card">
+                    <h3>Energy Savings</h3>
+                    <p class="summary-value" id="energySavings">--</p>
+                    <span class="summary-label">kWh saved</span>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>CO2 Reduction</h3>
+                    <p class="summary-value" id="co2Reduction">--</p>
+                    <span class="summary-label">kg reduced</span>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>Cost Savings</h3>
+                    <p class="summary-value" id="costSavings">--</p>
+                    <span class="summary-label">dollars saved</span>
+                </div>
+                
+                <div class="summary-card">
+                    <h3>Downtime Reduction</h3>
+                    <p class="summary-value" id="downtimeReduction">--</p>
+                    <span class="summary-label">hours saved</span>
+                </div>
+            </div>
+            
+            <div class="charts-grid-large">
+                <div class="chart-container-large">
+                    <h3>KPI Trends</h3>
+                    <canvas id="kpiTrendsChart"></canvas>
+                </div>
+                
+                <div class="chart-container-large">
+                    <h3>Energy Consumption & CO2 Emissions</h3>
+                    <canvas id="energyChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Machine Performance</h3>
+                    <canvas id="performanceChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Failure Risk Distribution</h3>
+                    <canvas id="riskChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Maintenance Statistics</h3>
+                    <canvas id="maintenanceChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Procurement Savings</h3>
+                    <canvas id="procurementChart"></canvas>
+                </div>
+            </div>
+            
+            <div class="optimization-report">
+                <h3>Optimization Report</h3>
+                <div id="optimizationDetails"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script>
+        checkAuth();
+        displayUserInfo();
+        loadAnalytics();
+        
+        async function loadAnalytics() {
+            const hours = document.getElementById('timeRange').value;
+            await Promise.all([
+                loadKPIHistory(hours),
+                loadEnergyHistory(hours),
+                loadPerformanceData(),
+                loadMaintenanceStats(),
+                loadOptimizationReport()
+            ]);
+        }
+        
+        async function loadKPIHistory(hours) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/analytics/kpis/history?hours=${hours}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayKPITrends(data);
+                }
+            } catch (error) {
+                console.error('Error loading KPI history:', error);
+            }
+        }
+        
+        function displayKPITrends(data) {
+            const ctx = document.getElementById('kpiTrendsChart');
+            
+            if (window.kpiTrendsChartInstance) {
+                window.kpiTrendsChartInstance.destroy();
+            }
+            
+            const labels = data.map(d => new Date(d.timestamp).toLocaleString());
+            
+            window.kpiTrendsChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Efficiency (%)',
+                        data: data.map(d => d.overall_efficiency),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(52, 152, 219, 0.1)'
+                    }, {
+                        label: 'Health (%)',
+                        data: data.map(d => d.average_health),
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)'
+                    }, {
+                        label: 'Failure Risk (%)',
+                        data: data.map(d => d.failure_risk * 100),
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function loadEnergyHistory(hours) {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/analytics/energy/history?hours=${hours}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayEnergyChart(data);
+                }
+            } catch (error) {
+                console.error('Error loading energy history:', error);
+            }
+        }
+        
+        function displayEnergyChart(data) {
+            const ctx = document.getElementById('energyChart');
+            
+            if (window.energyChartInstance) {
+                window.energyChartInstance.destroy();
+            }
+            
+            const labels = data.map(d => new Date(d.timestamp).toLocaleString());
+            
+            window.energyChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Power Consumption (kW)',
+                        data: data.map(d => d.total_power_kw),
+                        backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                        yAxisID: 'y'
+                    }, {
+                        label: 'CO2 Emissions (kg)',
+                        data: data.map(d => d.estimated_co2_kg),
+                        backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left'
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        async function loadPerformanceData() {
+            const token = localStorage.getItem('access_token');
+            
+            try {
+                const response = await fetch(`${API_BASE}/analytics/performance/machines`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    displayPerformanceChart(data.machines);
+                }
+            } catch (error) {
+                console.error('Error loading performance data:', error);
+            }
+        }
+        
+        function displayPerformanceChart(machines) {
+            const ctx = document.getElementById('performanceChart');
+            
+            if (window.performanceChartInstance) {
+                window.performanceChartInstance.destroy();
+            }
+            
+            const topMachines = machines.sort((a, b) => b.efficiency - a.efficiency).slice(0, 10);
+            
+            window.performanceChartInstance = new Chart(ctx, {
+                type: 'horizontalBar',
+                data: {
+                    labels:topMachines.map(m => m.machine_id),
+datasets: [{
+label: 'Efficiency (%)',
+data: topMachines.map(m => m.efficiency),
+backgroundColor: 'rgba(46, 204, 113, 0.6)'
+}]
+},
+options: {
+responsive: true,
+maintainAspectRatio: false,
+indexAxis: 'y'
+}
+});
+}
+async function loadMaintenanceStats() {
+        const token = localStorage.getItem('access_token');
+        
+        try {
+            const response = await fetch(`${API_BASE}/analytics/maintenance/statistics?days=30`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                displayMaintenanceChart(data);
+            }
+        } catch (error) {
+            console.error('Error loading maintenance stats:', error);
+        }
+    }
+    
+    function displayMaintenanceChart(data) {
+        const ctx = document.getElementById('maintenanceChart');
+        
+        if (window.maintenanceChartInstance) {
+            window.maintenanceChartInstance.destroy();
+        }
+        
+        window.maintenanceChartInstance = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(data.by_priority),
+                datasets: [{
+                    data: Object.values(data.by_priority),
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.8)',
+                        'rgba(230, 126, 34, 0.8)',
+                        'rgba(241, 196, 15, 0.8)',
+                        'rgba(52, 152, 219, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+    
+    async function loadOptimizationReport() {
+        const token = localStorage.getItem('access_token');
+        
+        try {
+            const response = await fetch(`${API_BASE}/analytics/optimization/report`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                displayOptimizationReport(data);
+            }
+        } catch (error) {
+            console.error('Error loading optimization report:', error);
+        }
+    }
+    
+    function displayOptimizationReport(data) {
+        document.getElementById('energySavings').textContent = data.energy_savings_kwh.toFixed(1);
+        document.getElementById('co2Reduction').textContent = data.co2_reduction_kg.toFixed(1);
+        document.getElementById('costSavings').textContent = '$' + data.cost_savings.toLocaleString();
+        document.getElementById('downtimeReduction').textContent = data.downtime_reduction_hours.toFixed(1);
+        
+        const detailsDiv = document.getElementById('optimizationDetails');
+        detailsDiv.innerHTML = `
+            <div class="report-section">
+                <h4>Summary</h4>
+                <p>Total optimization actions: ${data.optimization_actions}</p>
+                <p>Efficiency improvement: ${data.efficiency_improvement.toFixed(1)}%</p>
+            </div>
+            
+            <div class="report-section">
+                <h4>Top Optimizations</h4>
+                <ul>
+                    ${data.top_optimizations.map(opt => `
+                        <li>${opt.action}: ${opt.count} times (${opt.impact} impact)</li>
+                    `).join('')}
+                </ul>
+            </div>
+            
+            <div class="report-section">
+                <h4>Recommendations</h4>
+                <ul>
+                    ${data.recommendations.map(rec => `<li>${rec}</li>`).join('')}
+                </ul>
+            </div>
+        `;
+        
+        const ctx = document.getElementById('procurementChart');
+        
+        if (window.procurementChartInstance) {
+            window.procurementChartInstance.destroy();
+        }
+        
+        window.procurementChartInstance = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Energy Savings', 'Maintenance Cost', 'Procurement Savings'],
+                datasets: [{
+                    data: [
+                        data.energy_savings_kwh * 0.12,
+                        data.cost_savings * 0.4,
+                        data.cost_savings * 0.6
+                    ],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+    
+    function exportReport() {
+        alert('Export functionality would generate a PDF report with all analytics data');
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+model_name: failure_predictor
+version: 1.0.0
+description: Gradient Boosting Regressor for predicting machine failure probability
+
+features:
+  - temperature_mean
+  - temperature_std
+  - temperature_max
+  - vibration_mean
+  - vibration_std
+  - vibration_max
+  - high_temp_count
+  - high_vibe_count
+
+hyperparameters:
+  n_estimators: 150
+  learning_rate: 0.1
+  max_depth: 8
+  min_samples_split: 10
+  random_state: 42
+
+risk_levels:
+  critical: 0.8
+  high: 0.6
+  medium: 0.4
+  low: 0.0
+
+preprocessing:
+  scaling: StandardScaler
+  window_size: 10
+
+training:
+  test_size: 0.2
+  cross_validation: 5
+
+performance_targets:
+  min_r2_score: 0.75
+  max_mae: 0.15
+  max_rmse: 0.20

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryBrain AI - Dashboard</title>
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>FactoryBrain AI</h2>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="/dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="/machines.html">Machines</a></li>
+                <li><a href="/analytics.html">Analytics</a></li>
+                <li><a href="/maintenance.html">Maintenance</a></li>
+                <li><a href="#" id="logoutBtn">Logout</a></li>
+            </ul>
+            <div class="user-info" id="userInfo"></div>
+        </nav>
+        
+        <main class="main-content">
+            <header class="content-header">
+                <h1>Plant Overview</h1>
+                <div class="header-actions">
+                    <span id="lastUpdate">Last updated: --</span>
+                    <button class="btn-refresh" onclick="refreshData()">Refresh</button>
+                </div>
+            </header>
+            
+            <div class="kpi-cards">
+                <div class="kpi-card">
+                    <div class="kpi-icon efficiency"></div>
+                    <div class="kpi-content">
+                        <h3>Overall Efficiency</h3>
+                        <p class="kpi-value" id="efficiency">--</p>
+                        <span class="kpi-change positive" id="efficiencyChange">--</span>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon health"></div>
+                    <div class="kpi-content">
+                        <h3>Average Health</h3>
+                        <p class="kpi-value" id="health">--</p>
+                        <span class="kpi-change positive" id="healthChange">--</span>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon power"></div>
+                    <div class="kpi-content">
+                        <h3>Power Consumption</h3>
+                        <p class="kpi-value" id="power">--</p>
+                        <span class="kpi-change negative" id="powerChange">--</span>
+                    </div>
+                </div>
+                
+                <div class="kpi-card">
+                    <div class="kpi-icon failure"></div>
+                    <div class="kpi-content">
+                        <h3>Failure Risk</h3>
+                        <p class="kpi-value" id="failureRisk">--</p>
+                        <span class="kpi-change positive" id="riskChange">--</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="charts-grid">
+                <div class="chart-container">
+                    <h3>Efficiency Trend (24h)</h3>
+                    <canvas id="efficiencyChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Power Consumption (24h)</h3>
+                    <canvas id="powerChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>Machine Status Distribution</h3>
+                    <canvas id="statusChart"></canvas>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>CO2 Reduction Progress</h3>
+                    <canvas id="co2Chart"></canvas>
+                </div>
+            </div>
+            
+            <div class="alerts-section">
+                <h3>Recent Alerts</h3>
+                <div id="alertsList" class="alerts-list"></div>
+            </div>
+            
+            <div class="machines-overview">
+                <h3>Machine Status Overview</h3>
+                <div id="machinesList" class="machines-grid"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="/static/js/main.js"></script>
+    <script src="/static/js/charts.js"></script>
+    <script>
+        checkAuth();
+        displayUserInfo();
+        initializeDashboard();
+        
+        setInterval(() => {
+            refreshData();
+        }, 30000);
+    </script>
+</body>
+</html>
