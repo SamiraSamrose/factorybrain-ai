@@ -1,0 +1,3809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FactoryBrain AI</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+        }
+
+        .login-page {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo-section h1 {
+            font-size: 28px;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .logo-section p {
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        .login-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            padding: 10px 20px;
+            background: #95a5a6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+        }
+
+        .btn-refresh, .btn-export, .btn-small {
+            padding: 8px 16px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-refresh:hover, .btn-export:hover, .btn-small:hover {
+            background: #2980b9;
+        }
+
+        .btn-success {
+            padding: 10px 20px;
+            background: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-success:hover {
+            background: #27ae60;
+        }
+
+        .btn-warning {
+            padding: 8px 16px;
+            background: #f39c12;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+
+        .error-message {
+            padding: 12px;
+            background: #fee;
+            color: #c33;
+            border-radius: 6px;
+            margin-top: 15px;
+            font-size: 14px;
+        }
+
+        .demo-credentials {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 13px;
+        }
+
+        .demo-credentials p {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .demo-credentials ul {
+            list-style: none;
+        }
+
+        .demo-credentials li {
+            padding: 4px 0;
+            color: #7f8c8d;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 260px;
+            background: #2c3e50;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .sidebar-header {
+            padding: 25px 20px;
+            border-bottom: 1px solid #34495e;
+        }
+
+        .sidebar-header h2 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .nav-menu {
+            list-style: none;
+            padding: 20px 0;
+            flex: 1;
+        }
+
+        .nav-menu li {
+            margin: 5px 0;
+        }
+
+        .nav-menu a {
+            display: block;
+            padding: 14px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .nav-menu a:hover, .nav-menu a.active {
+            background: #34495e;
+            color: white;
+            border-left: 4px solid #3498db;
+            padding-left: 16px;
+        }
+
+        .user-info {
+            padding: 20px;
+            border-top: 1px solid #34495e;
+            font-size: 13px;
+            background: #1a252f;
+        }
+
+        .user-info strong {
+            color: #3498db;
+        }
+
+        .role-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            background: #3498db;
+            border-radius: 12px;
+            font-size: 11px;
+            text-transform: uppercase;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: 260px;
+            padding: 30px;
+            background: #f5f7fa;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .content-header h1 {
+            font-size: 28px;
+            color: #2c3e50;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .header-actions select {
+            padding: 8px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .ws-status {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .ws-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .ws-status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .kpi-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .kpi-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 15px;
+        }
+
+        .kpi-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .kpi-icon.efficiency {
+            background: #e3f2fd;
+        }
+
+        .kpi-icon.health {
+            background: #e8f5e9;
+        }
+
+        .kpi-icon.power {
+            background: #fff3e0;
+        }
+
+        .kpi-icon.failure {
+            background: #ffebee;
+        }
+
+        .kpi-content {
+            flex: 1;
+        }
+
+        .kpi-content h3 {
+            font-size: 13px;
+            color: #7f8c8d;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .kpi-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .kpi-change {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .kpi-change.positive {
+            color: #2ecc71;
+        }
+
+        .kpi-change.negative {
+            color: #e74c3c;
+        }
+
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .charts-grid-large {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .chart-container, .chart-container-large {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-container h3, .chart-container-large h3 {
+            margin-bottom: 20px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .chart-container canvas {
+            height: 250px !important;
+        }
+
+        .chart-container-large canvas {
+            height: 350px !important;
+        }
+
+        .alerts-section, .machines-overview {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .alerts-section h3, .machines-overview h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .alerts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .alert-item {
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid;
+        }
+
+        .alert-item.critical {
+            background: #ffebee;
+            border-left-color: #e74c3c;
+        }
+
+        .alert-item.high {
+            background: #fff3e0;
+            border-left-color: #f39c12;
+        }
+
+        .alert-item.medium {
+            background: #e3f2fd;
+            border-left-color: #3498db;
+        }
+
+        .alert-item.low {
+            background: #f5f5f5;
+            border-left-color: #95a5a6;
+        }
+
+        .alert-item.acknowledged {
+            opacity: 0.6;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-badge.operational {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.maintenance {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.standby {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge.open {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.in_progress {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.pending_parts {
+            background: #e7e7e7;
+            color: #555;
+        }
+
+        .status-badge.completed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.requested {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-badge.approved {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .status-badge.ordered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-badge.delivered {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .priority-badge {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .priority-badge.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .priority-badge.high {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-badge.medium {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .priority-badge.low {
+            background: #e7e7e7;
+            color: #555;
+        }
+
+        .machines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        .machine-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .machine-card:hover {
+            border-color: #3498db;
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .machine-card h4 {
+            font-size: 14px;
+            margin-bottom: 8px;
+            color: #2c3e50;
+        }
+
+        .machine-card .status {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+        }
+
+        .machine-card .status.operational {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .machine-card .status.maintenance {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .machine-card .status.standby {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .machine-card .status.offline {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .machine-card .health {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .machine-card .health.excellent {
+            color: #27ae60;
+        }
+
+        .machine-card .health.good {
+            color: #2ecc71;
+        }
+
+        .machine-card .health.fair {
+            color: #f39c12;
+        }
+
+        .machine-card .health.critical {
+            color: #e74c3c;
+        }
+
+        .machines-table-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            overflow-x: auto;
+            margin-bottom: 30px;
+        }
+
+        .machines-table, .tickets-table, .procurement-table, .inventory-table, .supplier-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .machines-table th, .tickets-table th, .procurement-table th, .inventory-table th, .supplier-table th {
+            background: #f8f9fa;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #2c3e50;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .machines-table td, .tickets-table td, .procurement-table td, .inventory-table td, .supplier-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+
+        .machines-table tr:hover, .tickets-table tr:hover, .procurement-table tr:hover, .inventory-table tr:hover, .supplier-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        .health-score.excellent {
+            color: #27ae60;
+            font-weight: 600;
+        }
+
+        .health-score.good {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .health-score.fair {
+            color: #f39c12;
+            font-weight: 600;
+        }
+
+        .health-score.critical {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: white;
+            margin: 50px auto;
+            padding: 30px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content.modal-large {
+            max-width: 900px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            color: #000;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e1e8ed;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #7f8c8d;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: #3498db;
+            border-bottom-color: #3498db;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .machine-details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .detail-item label {
+            font-size: 12px;
+            color: #7f8c8d;
+            font-weight: 600;
+        }
+
+        .detail-item span {
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .analytics-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .summary-card h3 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+        }
+
+        .summary-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .summary-label {
+            font-size: 12px;
+            color: #95a5a6;
+        }
+
+        .optimization-report {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .optimization-report h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .report-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .report-section h4 {
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .report-section ul {
+            margin-left: 20px;
+        }
+
+        .report-section li {
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .filter-bar select, .filter-bar input {
+            padding: 8px 12px;
+            border: 2px solid #e1e8ed;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .maintenance-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .stat-card h4 {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-bottom: 12px;
+        }
+
+        .stat-card p {
+            font-size: 32px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .tickets-container, .procurement-container, .inventory-container, .supplier-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .tickets-container h3, .procurement-container h3, .inventory-container h3, .supplier-container h3 {
+            margin-bottom: 20px;
+            font-size: 18px;
+            color: #2c3e50;
+        }
+
+        .ticket-details {
+            display: grid;
+            gap: 20px;
+        }
+
+        .detail-section {
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .detail-section h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+            color: #2c3e50;
+        }
+
+        .savings {
+            color: #2ecc71;
+            font-weight: 600;
+        }
+
+        .low-stock {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+
+        #lastUpdate {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .metric-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+
+        .metric-badge.excellent {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .metric-badge.good {
+            background: #d1ecf1;
+            color: #0c5460;
+        }
+
+        .metric-badge.warning {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .metric-badge.critical {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .negotiation-info {
+            padding: 12px;
+            background: #e3f2fd;
+            border-left: 4px solid #3498db;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .voice-alert {
+            padding: 12px;
+            background: #fff3cd;
+            border-left: 4px solid #f39c12;
+            border-radius: 4px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .inference-latency {
+            font-size: 11px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                position: relative;
+                height: auto;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .kpi-cards {
+                grid-template-columns: 1fr;
+            }
+            @keyframes slideIn {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+        }
+    </style>
+</head>
+<body>
+    <div id="app"></div>
+
+    <script>
+        const APP_STATE = {
+            currentView: 'login',
+            currentUser: null,
+            jwtToken: null,
+            tokenExpiry: null,
+            machines: [],
+            tickets: [],
+            procurementOrders: [],
+            alerts: [],
+            kpiHistory: [],
+            energyHistory: [],
+            inventory: [],
+            suppliers: [],
+            optimizationActions: [],
+            wsConnected: false,
+            inferenceMetrics: [],
+            anomalyDetections: [],
+            failurePredictions: [],
+            energyOptimizations: [],
+            workloadAllocations: []
+        };
+
+        const DEMO_USERS = {
+            'admin': { username: 'admin', password: 'admin123', role: 'admin', permissions: ['all'] },
+            'supervisor': { username: 'supervisor', password: 'super123', role: 'supervisor', permissions: ['view', 'approve', 'assign'] },
+            'operator': { username: 'operator', password: 'oper123', role: 'operator', permissions: ['view', 'create_ticket'] },
+            'viewer': { username: 'viewer', password: 'view123', role: 'viewer', permissions: ['view'] }
+        };
+
+        const ML_CONFIG = {
+            anomalyThreshold: 0.75,
+            anomalyAccuracy: 0.92,
+            inferenceLatencyTarget: 50,
+            failurePredictionHorizons: [24, 72, 168],
+            energyReductionTarget: 0.15,
+            co2PerKwh: 0.5,
+            co2ReductionTarget: 0.20,
+            standbyPowerKw: 5,
+            activePowerKw: 45
+        };
+
+        const PROCUREMENT_CONFIG = {
+            reorderThreshold: 0.2,
+            negotiationStrategies: {
+                critical: { targetReduction: 0.05, urgencyWeight: 0.5 },
+                high: { targetReduction: 0.08, urgencyWeight: 0.3 },
+                medium: { targetReduction: 0.10, urgencyWeight: 0.2 },
+                low: { targetReduction: 0.12, urgencyWeight: 0.1 }
+            },
+            supplierScoring: {
+                priceWeight: 0.40,
+                reliabilityWeight: 0.30,
+                deliveryWeight: 0.30
+            }
+        };
+        function generateJWTToken(user) {
+        const payload = {
+            username: user.username,
+            role: user.role,
+            permissions: user.permissions,
+            iat: Date.now(),
+            exp: Date.now() + (30 * 60 * 1000)
+        };
+        
+        return {
+            token: 'mock_jwt_' + btoa(JSON.stringify(payload)),
+            expiry: payload.exp
+        };
+    }
+
+    function validateToken() {
+        if (!APP_STATE.jwtToken || !APP_STATE.tokenExpiry) return false;
+        if (Date.now() >= APP_STATE.tokenExpiry) {
+            logout();
+            alert('Session expired. Please login again.');
+            return false;
+        }
+        return true;
+    }
+
+    function hasPermission(permission) {
+        if (!APP_STATE.currentUser) return false;
+        return APP_STATE.currentUser.permissions.includes('all') || 
+               APP_STATE.currentUser.permissions.includes(permission);
+    }
+
+    function generateMockData() {
+        const machineTypes = ['CNC Mill', 'Lathe', 'Press', 'Grinder', 'Welder', 'Assembly Robot'];
+        const locations = ['Building A', 'Building B', 'Building C'];
+        const statuses = ['operational', 'maintenance', 'standby', 'offline'];
+        
+        for (let i = 1; i <= 50; i++) {
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const baseHealth = status === 'operational' ? 70 + Math.random() * 30 : 
+                              status === 'maintenance' ? 50 + Math.random() * 30 :
+                              status === 'standby' ? 60 + Math.random() * 30 :
+                              40 + Math.random() * 40;
+            
+            const temperature = 50 + Math.random() * 30;
+            const vibration = 0.1 + Math.random() * 0.5;
+            const pressure = 100 + Math.random() * 50;
+            const powerConsumption = status === 'standby' ? ML_CONFIG.standbyPowerKw : 15 + Math.random() * 35;
+            const efficiency = 70 + Math.random() * 25;
+            
+            const failureProbability = (100 - baseHealth) / 100 * Math.random();
+            const remainingUsefulLife = 168 + Math.random() * 500;
+            
+            const healthScore = calculateHealthScore({
+                temperature, vibration, pressure, powerConsumption, efficiency,
+                failureProbability, uptime: 0.85 + Math.random() * 0.15
+            });
+            
+            APP_STATE.machines.push({
+                machine_id: `MCH-${String(i).padStart(3, '0')}`,
+                name: `${machineTypes[i % machineTypes.length]} ${i}`,
+                type: machineTypes[i % machineTypes.length],
+                location: locations[i % locations.length],
+                status: status,
+                health_score: healthScore,
+                temperature: temperature,
+                vibration: vibration,
+                pressure: pressure,
+                power_consumption: powerConsumption,
+                efficiency: efficiency,
+                uptime_percent: 85 + Math.random() * 15,
+                downtime_hours: Math.random() * 10,
+                production_output: Math.floor(1000 + Math.random() * 4000),
+                quality_score: 90 + Math.random() * 10,
+                failure_probability: failureProbability,
+                remaining_useful_life_hours: remainingUsefulLife,
+                anomaly_score: Math.random(),
+                last_maintenance: new Date(Date.now() - Math.random() * 30 * 24 * 3600000).toISOString()
+            });
+        }
+
+        for (let i = 0; i < 24; i++) {
+            const timestamp = new Date(Date.now() - (23 - i) * 3600000).toISOString();
+            const powerKw = 850 + Math.random() * 200;
+            
+            APP_STATE.kpiHistory.push({
+                timestamp: timestamp,
+                overall_efficiency: 85 + Math.random() * 10,
+                average_health: 82 + Math.random() * 12,
+                total_power_consumption: powerKw,
+                failure_risk: 0.05 + Math.random() * 0.15,
+                active_machines: 40 + Math.floor(Math.random() * 10)
+            });
+
+            APP_STATE.energyHistory.push({
+                timestamp: timestamp,
+                total_power_kw: powerKw,
+                estimated_co2_kg: powerKw * ML_CONFIG.co2PerKwh,
+                baseline_co2_kg: powerKw * ML_CONFIG.co2PerKwh / (1 - ML_CONFIG.co2ReductionTarget)
+            });
+        }
+
+        const priorities = ['critical', 'high', 'medium', 'low'];
+        const ticketStatuses = ['open', 'in_progress', 'pending_parts', 'completed'];
+        const failureTypes = ['overheating', 'mechanical_stress', 'pressure_abnormality', 'electrical'];
+        
+        for (let i = 1; i <= 30; i++) {
+            const status = ticketStatuses[Math.floor(Math.random() * ticketStatuses.length)];
+            const priority = priorities[Math.floor(Math.random() * priorities.length)];
+            const estimatedDowntime = 2 + Math.random() * 6;
+            const estimatedCost = 500 + Math.random() * 2000;
+            
+            APP_STATE.tickets.push({
+                ticket_id: `TKT-${String(i).padStart(4, '0')}`,
+                machine_id: `MCH-${String(Math.floor(Math.random() * 50) + 1).padStart(3, '0')}`,
+                title: `${failureTypes[i % failureTypes.length]} issue detected`,
+                description: `Machine requires attention due to ${failureTypes[i % failureTypes.length]}`,
+                status: status,
+                priority: priority,
+                assigned_to: status !== 'open' ? `tech${Math.floor(Math.random() * 5) + 1}` : null,
+                reported_by: 'system',
+                failure_type: failureTypes[i % failureTypes.length],
+                created_at: new Date(Date.now() - Math.random() * 7 * 24 * 3600000).toISOString(),
+                estimated_downtime_hours: estimatedDowntime,
+                cost_estimate: estimatedCost,
+                actual_downtime_hours: status === 'completed' ? estimatedDowntime * (0.8 + Math.random() * 0.4) : null,
+                actual_cost: status === 'completed' ? estimatedCost * (0.9 + Math.random() * 0.2) : null,
+                repair_steps: 'Step 1: Inspect component and identify root cause. Step 2: Replace or repair faulty parts. Step 3: Test operation under load. Step 4: Calibrate sensors. Step 5: Document findings and update maintenance log.',
+                acknowledged: Math.random() > 0.5,
+                acknowledged_by: Math.random() > 0.5 ? 'operator1' : null,
+                acknowledged_at: Math.random() > 0.5 ? new Date(Date.now() - Math.random() * 24 * 3600000).toISOString() : null
+            });
+        }
+
+        const partNames = ['Bearing', 'Motor', 'Belt', 'Sensor', 'Controller', 'Valve', 'Actuator', 'Pump', 'Filter', 'Gasket'];
+        const suppliers = ['Supplier A', 'Supplier B', 'Supplier C'];
+        const orderStatuses = ['requested', 'approved', 'ordered', 'delivered'];
+        
+        for (let i = 1; i <= 20; i++) {
+            const quantity = Math.floor(Math.random() * 10) + 1;
+            const basePrice = 50 + Math.random() * 500;
+            const urgency = priorities[Math.floor(Math.random() * priorities.length)];
+            const negotiationStrategy = PROCUREMENT_CONFIG.negotiationStrategies[urgency];
+            const targetReduction = negotiationStrategy.targetReduction;
+            const achievedReduction = targetReduction * (0.7 + Math.random() * 0.6);
+            const negotiatedPrice = basePrice * (1 - achievedReduction);
+            const totalPrice = quantity * negotiatedPrice;
+            const savings = quantity * basePrice - totalPrice;
+            
+            APP_STATE.procurementOrders.push({
+                order_id: `ORD-${String(i).padStart(4, '0')}`,
+                part_name: partNames[i % partNames.length],
+                part_number: `PN-${String(Math.floor(Math.random() * 10000)).padStart(5, '0')}`,
+                quantity: quantity,
+                supplier: suppliers[i % suppliers.length],
+                base_price: basePrice,
+                negotiated_price: negotiatedPrice,
+                total_price: totalPrice,
+                savings: savings,
+                savings_percent: achievedReduction * 100,
+                status: orderStatuses[Math.floor(Math.random() * orderStatuses.length)],
+                estimated_delivery: new Date(Date.now() + Math.random() * 14 * 24 * 3600000).toISOString(),
+                urgency: urgency,
+                negotiation_strategy: `AI-optimized ${urgency} urgency strategy targeting ${(targetReduction * 100).toFixed(0)}% reduction`,
+                supplier_score: 70 + Math.random() * 30
+            });
+        }
+
+        for (let i = 0; i < partNames.length; i++) {
+            const maxQuantity = 100 + Math.floor(Math.random() * 400);
+            const currentQuantity = Math.floor(Math.random() * maxQuantity);
+            const reorderLevel = Math.floor(maxQuantity * PROCUREMENT_CONFIG.reorderThreshold);
+            
+            APP_STATE.inventory.push({
+                part_id: `PRT-${String(i + 1).padStart(3, '0')}`,
+                part_name: partNames[i],
+                part_number: `PN-${String(1000 + i).padStart(5, '0')}`,
+                current_quantity: currentQuantity,
+                max_quantity: maxQuantity,
+                reorder_level: reorderLevel,
+                unit_cost: 50 + Math.random() * 200,
+                storage_location: `Warehouse ${String.fromCharCode(65 + Math.floor(i / 3))}-${(i % 3) + 1}`,
+                last_restocked: new Date(Date.now() - Math.random() * 60 * 24 * 3600000).toISOString(),
+                needs_reorder: currentQuantity <= reorderLevel
+            });
+        }
+
+        for (let i = 0; i < suppliers.length; i++) {
+            APP_STATE.suppliers.push({
+                supplier_id: `SUP-${String(i + 1).padStart(3, '0')}`,
+                name: suppliers[i],
+                reliability_rating: 70 + Math.random() * 30,
+                base_price_factor: 0.9 + Math.random() * 0.3,
+                typical_delivery_days: 3 + Math.floor(Math.random() * 10),
+                total_orders: Math.floor(Math.random() * 100),
+                total_value: Math.floor(10000 + Math.random() * 90000),
+                negotiation_history: Math.floor(Math.random() * 50)
+            });
+        }
+
+        const severities = ['critical', 'high', 'medium', 'low'];
+        for (let i = 1; i <= 10; i++) {
+            const severity = severities[Math.floor(Math.random() * severities.length)];
+            const machineId = `MCH-${String(Math.floor(Math.random() * 50) + 1).padStart(3, '0')}`;
+            
+            APP_STATE.alerts.push({
+                alert_id: `ALT-${String(i).padStart(4, '0')}`,
+                machine_id: machineId,
+                message: `Anomaly detected in operational parameters`,
+                severity: severity,
+                timestamp: new Date(Date.now() - Math.random() * 24 * 3600000).toISOString(),
+                anomaly_type: failureTypes[Math.floor(Math.random() * failureTypes.length)],
+                anomaly_score: 0.75 + Math.random() * 0.25,
+                acknowledged: Math.random() > 0.6,
+                acknowledged_by: Math.random() > 0.6 ? 'operator1' : null,
+                voice_alert_generated: severity === 'critical',
+                repair_instructions: generateRepairInstructions(failureTypes[Math.floor(Math.random() * failureTypes.length)])
+            });
+        }
+
+        for (let i = 0; i < 50; i++) {
+            APP_STATE.optimizationActions.push({
+                action_id: `OPT-${String(i + 1).padStart(4, '0')}`,
+                timestamp: new Date(Date.now() - Math.random() * 7 * 24 * 3600000).toISOString(),
+                type: ['energy_reduction', 'predictive_maintenance', 'workload_balancing', 'off_peak_scheduling'][Math.floor(Math.random() * 4)],
+                machine_id: `MCH-${String(Math.floor(Math.random() * 50) + 1).padStart(3, '0')}`,
+                energy_saved_kwh: Math.random() * 50,
+                cost_saved: Math.random() * 20,
+                co2_reduced_kg: Math.random() * 25
+            });
+        }
+    }
+
+    // ============ VOICE ALERT SYSTEM - ADD HERE ============
+        function speakVoiceAlert(message, isRepairInstructions = false) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.rate = 0.9;
+                utterance.pitch = 1.0;
+                utterance.volume = 1.0;
+                
+                if (isRepairInstructions) {
+                    utterance.rate = 0.8;
+                }
+                
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+                
+                logVoiceCommand('system', message);
+            } else {
+                console.warn('Speech synthesis not supported in this browser');
+                alert('Voice Alert: ' + message);
+            }
+        }
+
+        function logVoiceCommand(source, command) {
+            const logEntry = {
+                timestamp: new Date().toISOString(),
+                source: source,
+                command: command,
+                user: APP_STATE.currentUser?.username || 'system'
+            };
+            
+            if (!APP_STATE.voiceCommandLog) {
+                APP_STATE.voiceCommandLog = [];
+            }
+            
+            APP_STATE.voiceCommandLog.push(logEntry);
+            console.log('[Voice Log]', logEntry);
+        }
+
+        function generateFiveStepProcedure(failureType, machineId) {
+            const procedures = {
+                overheating: [
+                    `Step 1: Immediately shut down machine ${machineId} to prevent thermal damage`,
+                    `Step 2: Inspect and clean all cooling system components including air filters and heat exchangers`,
+                    `Step 3: Verify thermal sensor calibration and replace if readings are inaccurate`,
+                    `Step 4: Check lubricant levels and quality, top up or replace as needed`,
+                    `Step 5: Restart machine and monitor temperature continuously for 30 minutes`
+                ],
+                mechanical_stress: [
+                    `Step 1: Stop operation of machine ${machineId} immediately and lockout power source`,
+                    `Step 2: Conduct thorough inspection of bearings, shafts, and all moving components for wear`,
+                    `Step 3: Check alignment of belts, chains, and drive systems, adjust tension to specifications`,
+                    `Step 4: Replace any worn or damaged mechanical components with OEM parts`,
+                    `Step 5: Perform load test at 50%, 75%, and 100% capacity, recalibrate as necessary`
+                ],
+                pressure_abnormality: [
+                    `Step 1: Reduce system pressure to safe levels on machine ${machineId}`,
+                    `Step 2: Inspect all pressure relief valves, regulators, and safety systems for proper function`,
+                    `Step 3: Check hydraulic and pneumatic lines for leaks, cracks, or deterioration`,
+                    `Step 4: Replace faulty pressure sensors and calibrate to manufacturer specifications`,
+                    `Step 5: Gradually pressurize system while monitoring all gauges, verify readings match expected values`
+                ],
+                electrical: [
+                    `Step 1: Implement lockout tagout procedure on machine ${machineId} electrical supply`,
+                    `Step 2: Test voltage levels and circuit continuity with multimeter at all connection points`,
+                    `Step 3: Inspect all wiring for signs of damage, corrosion, or loose connections`,
+                    `Step 4: Replace damaged electrical components including fuses, relays, or contactors`,
+                    `Step 5: Restore power in stages, verify proper operation of all electrical systems`
+                ]
+            };
+            
+            return procedures[failureType] || [
+                `Step 1: Isolate machine ${machineId} and assess the situation`,
+                `Step 2: Document all observed symptoms and abnormal readings`,
+                `Step 3: Consult technical manual for specific troubleshooting procedures`,
+                `Step 4: Perform recommended diagnostic tests and repairs`,
+                `Step 5: Test machine operation and verify all systems are functioning normally`
+            ];
+        }
+
+        function speakRepairInstructions(failureType, machineId) {
+            const steps = generateFiveStepProcedure(failureType, machineId);
+            const intro = `Critical alert for machine ${machineId}. ${failureType} detected. Beginning five-step repair procedure.`;
+            
+            speakVoiceAlert(intro, false);
+            
+            setTimeout(() => {
+                steps.forEach((step, index) => {
+                    setTimeout(() => {
+                        speakVoiceAlert(step, true);
+                    }, index * 6000);
+                });
+            }, 3000);
+        }
+        // ============ END VOICE ALERT SYSTEM ============
+
+    function calculateHealthScore(params) {
+        const tempScore = Math.max(0, 100 - (params.temperature - 50) * 2);
+        const vibScore = Math.max(0, 100 - params.vibration * 100);
+        const pressureScore = Math.max(0, Math.min(100, params.pressure - 50));
+        const efficiencyScore = params.efficiency;
+        const failureScore = (1 - params.failureProbability) * 100;
+        const uptimeScore = params.uptime * 100;
+        
+        const healthScore = (
+            tempScore * 0.20 +
+            vibScore * 0.20 +
+            pressureScore * 0.15 +
+            efficiencyScore * 0.20 +
+            failureScore * 0.15 +
+            uptimeScore * 0.10
+        );
+        
+        return Math.max(0, Math.min(100, healthScore));
+    }
+
+    function getHealthClass(score) {
+        if (score >= 90) return 'excellent';
+        if (score >= 70) return 'good';
+        if (score >= 50) return 'fair';
+        return 'critical';
+    }
+
+    function generateRepairInstructions(failureType) {
+            const instructions = {
+                overheating: 'Step 1: Shut down machine immediately. Step 2: Check cooling system and clean air filters. Step 3: Inspect thermal sensors for accuracy. Step 4: Verify lubricant levels and quality. Step 5: Restart and monitor temperature closely.',
+                mechanical_stress: 'Step 1: Stop operation and isolate machine. Step 2: Inspect bearings and moving parts for wear. Step 3: Check alignment and tension of belts/chains. Step 4: Replace worn components. Step 5: Perform load test and recalibrate.',
+                pressure_abnormality: 'Step 1: Reduce system pressure to safe levels. Step 2: Inspect pressure relief valves and regulators. Step 3: Check for leaks in hydraulic/pneumatic lines. Step 4: Replace faulty pressure sensors. Step 5: Pressurize gradually and verify readings.',
+                electrical: 'Step 1: Lockout/tagout electrical supply. Step 2: Test voltage and continuity in circuits. Step 3: Inspect wiring for damage or loose connections. Step 4: Replace damaged components. Step 5: Restore power and verify proper operation.'
+            };
+            return instructions[failureType] || 'Contact maintenance supervisor for specific instructions.';
+        }
+
+    function performAnomalyDetection(machine) {
+        const features = [
+            machine.temperature / 100,
+            machine.vibration,
+            machine.pressure / 150,
+            machine.power_consumption / 50,
+            (100 - machine.efficiency) / 100
+        ];
+        
+        const weights = [0.25, 0.25, 0.20, 0.15, 0.15];
+        let anomalyScore = 0;
+        
+        features.forEach((f, i) => {
+            const deviation = Math.abs(f - 0.5);
+            anomalyScore += deviation * weights[i];
+        });
+        
+        anomalyScore = Math.min(1, anomalyScore * 2);
+        
+        const inferenceStart = performance.now();
+        const isAnomaly = anomalyScore > ML_CONFIG.anomalyThreshold;
+        const inferenceLatency = performance.now() - inferenceStart;
+        
+        APP_STATE.inferenceMetrics.push({
+            timestamp: new Date().toISOString(),
+            operation: 'anomaly_detection',
+            latency_ms: inferenceLatency,
+            machine_id: machine.machine_id
+        });
+        
+        if (isAnomaly) {
+            let anomalyType = 'other';
+            if (machine.temperature > 75) anomalyType = 'overheating';
+            else if (machine.vibration > 0.4) anomalyType = 'mechanical_stress';
+            else if (machine.pressure < 90 || machine.pressure > 140) anomalyType = 'pressure_abnormality';
+            
+            return {
+                detected: true,
+                score: anomalyScore,
+                type: anomalyType,
+                confidence: ML_CONFIG.anomalyAccuracy,
+                latency_ms: inferenceLatency
+            };
+        }
+        
+        return { detected: false, score: anomalyScore, latency_ms: inferenceLatency };
+    }
+
+    function predictFailure(machine) {
+        const inferenceStart = performance.now();
+        
+        const failureProb = machine.failure_probability;
+        const rul = machine.remaining_useful_life_hours;
+        
+        const contributingFactors = [];
+        if (machine.temperature > 70) contributingFactors.push('High temperature');
+        if (machine.vibration > 0.35) contributingFactors.push('Excessive vibration');
+        if (machine.health_score < 70) contributingFactors.push('Low health score');
+        if (machine.efficiency < 75) contributingFactors.push('Reduced efficiency');
+        
+        const inferenceLatency = performance.now() - inferenceStart;
+        
+        APP_STATE.inferenceMetrics.push({
+            timestamp: new Date().toISOString(),
+            operation: 'failure_prediction',
+            latency_ms: inferenceLatency,
+            machine_id: machine.machine_id
+        });
+        
+        return {
+            probability_24h: failureProb * 0.2,
+            probability_72h: failureProb * 0.5,
+            probability_168h: failureProb,
+            remaining_useful_life_hours: rul,
+            contributing_factors: contributingFactors,
+            latency_ms: inferenceLatency
+        };
+    }
+
+    function optimizeEnergy(machine) {
+        if (machine.status === 'standby' && machine.power_consumption > ML_CONFIG.standbyPowerKw * 1.2) {
+            const reduction = machine.power_consumption - ML_CONFIG.standbyPowerKw;
+            machine.power_consumption = ML_CONFIG.standbyPowerKw;
+            
+            logOptimization({
+                type: 'energy_reduction',
+                machine_id: machine.machine_id,
+                action: 'Reduced standby power consumption',
+                energy_saved_kwh: reduction,
+                cost_saved: reduction * 0.12,
+                co2_reduced_kg: reduction * ML_CONFIG.co2PerKwh
+            });
+            
+            return true;
+        }
+        
+        if (machine.status === 'operational' && machine.power_consumption > 40 && machine.efficiency < 80) {
+            const reduction = machine.power_consumption * ML_CONFIG.energyReductionTarget;
+            machine.power_consumption -= reduction;
+            machine.efficiency += 2;
+            
+            logOptimization({
+                type: 'energy_reduction',
+                machine_id: machine.machine_id,
+                action: 'Optimized operational power consumption',
+                energy_saved_kwh: reduction,
+                cost_saved: reduction * 0.12,
+                co2_reduced_kg: reduction * ML_CONFIG.co2PerKwh
+            });
+            
+            return true;
+        }
+        
+        return false;
+    }
+
+    function scheduleOffPeakMaintenance(ticket) {
+        const currentHour = new Date().getHours();
+        
+        if (ticket.priority !== 'critical' && (currentHour < 6 || currentHour >= 22)) {
+            return {
+                scheduled: true,
+                window: '22:00-06:00',
+                estimated_savings_kwh: 15 + Math.random() * 25,
+                reason: 'Off-peak energy rates and reduced production impact'
+            };
+        }
+        
+        return { scheduled: false };
+    }
+
+    function distributeWorkload(machines) {
+        const operational = machines.filter(m => m.status === 'operational');
+        const totalDemand = 10000;
+        
+        let totalWeight = 0;
+        operational.forEach(m => {
+            const efficiencyWeight = m.efficiency / 100;
+            const energyPenalty = 1 - (m.power_consumption / 50) * 0.3;
+            m.workloadWeight = efficiencyWeight * energyPenalty;
+            totalWeight += m.workloadWeight;
+        });
+        
+        const allocations = [];
+        operational.forEach(m => {
+            const allocation = (m.workloadWeight / totalWeight) * totalDemand;
+            const estimatedPower = (allocation / 1000) * m.power_consumption;
+            
+            allocations.push({
+                machine_id: m.machine_id,
+                allocated_units: Math.floor(allocation),
+                efficiency_weight: m.workloadWeight.toFixed(3),
+                estimated_power_kw: estimatedPower.toFixed(2)
+            });
+        });
+        
+        return {
+            total_demand: totalDemand,
+            allocations: allocations,
+            timestamp: new Date().toISOString()
+        };
+    }
+
+    function orchestrateAgents() {
+        const currentKPI = APP_STATE.kpiHistory[APP_STATE.kpiHistory.length - 1];
+        
+        if (currentKPI.failure_risk > 0.6) {
+            console.log('[Plant Optimizer] High failure risk detected. Increasing monitoring frequency.');
+            APP_STATE.machines.forEach(m => {
+                if (m.failure_probability > 0.6) {
+                    performAnomalyDetection(m);
+                }
+            });
+        }
+        
+        if (currentKPI.total_power_consumption > 1000) {
+            console.log('[Plant Optimizer] High power consumption. Activating energy reduction mode.');
+            APP_STATE.machines.forEach(m => {
+                if (m.power_consumption > 40) {
+                    optimizeEnergy(m);
+                }
+            });
+        }
+        
+        if (currentKPI.average_health < 75) {
+            console.log('[Plant Optimizer] Low average health. Preparing inventory for maintenance.');
+            APP_STATE.inventory.forEach(part => {
+                if (part.current_quantity <= part.reorder_level) {
+                    console.log(`[Procurement Agent] Initiating reorder for ${part.part_name}`);
+                }
+            });
+        }
+    }
+
+    function negotiateSupplierPrice(order) {
+        const strategy = PROCUREMENT_CONFIG.negotiationStrategies[order.urgency];
+        const supplier = APP_STATE.suppliers.find(s => s.name === order.supplier);
+        
+        const priceScore = (1 - supplier.base_price_factor) * PROCUREMENT_CONFIG.supplierScoring.priceWeight;
+        const reliabilityScore = (supplier.reliability_rating / 100) * PROCUREMENT_CONFIG.supplierScoring.reliabilityWeight;
+        const deliveryScore = (1 - supplier.typical_delivery_days / 14) * PROCUREMENT_CONFIG.supplierScoring.deliveryWeight;
+        
+        const supplierScore = (priceScore + reliabilityScore + deliveryScore) * 100;
+        
+        return {
+            target_reduction: strategy.targetReduction * 100,
+            supplier_score: supplierScore.toFixed(1),
+            negotiation_factors: {
+                price_weight: '40%',
+                reliability_weight: '30%',
+                delivery_weight: '30%'
+            },
+            recommendation: supplierScore > 70 ? 'Proceed with negotiation' : 'Consider alternative suppliers'
+        };
+    }
+
+    function logOptimization(optimization) {
+        APP_STATE.optimizationActions.push({
+            action_id: `OPT-${String(APP_STATE.optimizationActions.length + 1).padStart(4, '0')}`,
+            timestamp: new Date().toISOString(),
+            ...optimization
+        });
+    }
+
+    function exportToCSV(data, filename) {
+        const keys = Object.keys(data[0]);
+        let csv = keys.join(',') + '\n';
+        
+        data.forEach(row => {
+            const values = keys.map(key => {
+                const value = row[key];
+                return typeof value === 'string' ? `"${value}"` : value;
+            });
+            csv += values.join(',') + '\n';
+        });
+        
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
+    function exportToPDF(title, content) {
+        alert(`PDF Export: ${title}\n\nIn a production environment, this would generate a PDF report containing:\n\n${content}`);
+    }
+
+    function simulateWebSocket() {
+        APP_STATE.wsConnected = true;
+        
+        setInterval(() => {
+            if (!APP_STATE.currentUser) return;
+            
+            APP_STATE.machines.forEach(machine => {
+                machine.temperature += (Math.random() - 0.5) * 1;
+                machine.vibration += (Math.random() - 0.5) * 0.02;
+                machine.power_consumption += (Math.random() - 0.5) * 2;
+                machine.efficiency = Math.max(70, Math.min(95, machine.efficiency + (Math.random() - 0.5) * 0.5));
+                
+                machine.health_score = calculateHealthScore({
+                    temperature: machine.temperature,
+                    vibration: machine.vibration,
+                    pressure: machine.pressure,
+                    powerConsumption: machine.power_consumption,
+                    efficiency: machine.efficiency,
+                    failureProbability: machine.failure_probability,
+                    uptime: machine.uptime_percent / 100
+                });
+                
+                const anomaly = performAnomalyDetection(machine);
+                if (anomaly.detected && Math.random() > 0.95) {
+                    const alert = {
+                            alert_id: `ALT-${String(APP_STATE.alerts.length + 1).padStart(4, '0')}`,
+                            machine_id: machine.machine_id,
+                            message: `Real-time anomaly detected: ${anomaly.type}`,
+                            severity: anomaly.score > 0.9 ? 'critical' : 'high',
+                            timestamp: new Date().toISOString(),
+                            anomaly_type: anomaly.type,
+                            anomaly_score: anomaly.score,
+                            acknowledged: false,
+                            voice_alert_generated: anomaly.score > 0.9,
+                            repair_instructions: generateRepairInstructions(anomaly.type)
+                        };
+                        
+                        APP_STATE.alerts.unshift(alert);
+                        
+                        // ===== TRIGGER VOICE ALERT - ADD THIS =====
+                        if (anomaly.score > 0.9) {
+                            const voiceMessage = `Critical alert! Machine ${machine.machine_id} has detected ${anomaly.type.replace('_', ' ')} with anomaly score ${(anomaly.score * 100).toFixed(0)} percent. Immediate attention required.`;
+                            speakVoiceAlert(voiceMessage, false);
+                            
+                            setTimeout(() => {
+                                speakRepairInstructions(anomaly.type, machine.machine_id);
+                            }, 4000);
+                        }
+                        // ===== END VOICE ALERT TRIGGER =====
+                    
+                    if (APP_STATE.currentView === 'dashboard') {
+                        showRealtimeAlert(alert);
+                    }
+                }
+            });
+            
+            if (APP_STATE.currentView === 'dashboard') {
+                updateRealtimeKPIs();
+            }
+            
+        }, 30000);
+    }
+
+    function showRealtimeAlert(alert) {
+        const notification = document.createElement('div');
+        notification.className = `alert-notification ${alert.severity}`;
+        notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-left: 4px solid ${alert.severity === 'critical' ? '#e74c3c' : '#f39c12'};
+            z-index: 10000;
+            min-width: 300px;
+            animation: slideIn 0.3s ease-out;
+        `;
+        
+        notification.innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <strong>${alert.machine_id}</strong><br>
+                    ${alert.message}<br>
+                    <span style="font-size: 11px; color: #7f8c8d;">Anomaly Score: ${(alert.anomaly_score * 100).toFixed(1)}%</span>
+                    ${alert.voice_alert_generated ? '<br><span class="voice-alert">Voice alert generated</span>' : ''}
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" style="border: none; background: none; font-size: 20px; cursor: pointer; color: #95a5a6;">&times;</button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        
+        setTimeout(() => {
+            if (notification.parentElement) {
+                notification.style.animation = 'slideOut 0.3s ease-out';
+                setTimeout(() => notification.remove(), 300);
+            }
+        }, 10000);
+    }
+
+    function updateRealtimeKPIs() {
+        const machines = APP_STATE.machines;
+        const operational = machines.filter(m => m.status === 'operational');
+        
+        const avgEfficiency = operational.reduce((sum, m) => sum + m.efficiency, 0) / operational.length;
+        const avgHealth = machines.reduce((sum, m) => sum + m.health_score, 0) / machines.length;
+        const totalPower = machines.reduce((sum, m) => sum + m.power_consumption, 0);
+        const avgRisk = machines.reduce((sum, m) => sum + m.failure_probability, 0) / machines.length;
+        const effEl = document.getElementById('efficiency');
+        const healthEl = document.getElementById('health');
+        const powerEl = document.getElementById('power');
+        const riskEl = document.getElementById('failureRisk');
+        
+        if (effEl) effEl.textContent = avgEfficiency.toFixed(1) + '%';
+        if (healthEl) healthEl.textContent = avgHealth.toFixed(1) + '%';
+        if (powerEl) powerEl.textContent = totalPower.toFixed(1) + ' kW';
+        if (riskEl) riskEl.textContent = (avgRisk * 100).toFixed(1) + '%';
+    }
+
+    function login(username, password) {
+        const user = DEMO_USERS[username];
+        if (user && user.password === password) {
+            const { token, expiry } = generateJWTToken(user);
+            APP_STATE.currentUser = user;
+            APP_STATE.jwtToken = token;
+            APP_STATE.tokenExpiry = expiry;
+            APP_STATE.currentView = 'dashboard';
+            render();
+            simulateWebSocket();
+            return true;
+        }
+        return false;
+    }
+
+    function logout() {
+        APP_STATE.currentUser = null;
+        APP_STATE.jwtToken = null;
+        APP_STATE.tokenExpiry = null;
+        APP_STATE.currentView = 'login';
+        APP_STATE.wsConnected = false;
+        render();
+    }
+
+    function navigateTo(view) {
+        if (!validateToken()) return;
+        APP_STATE.currentView = view;
+        render();
+    }
+
+    function renderLogin() {
+        return `
+            <div class="login-page">
+                <div class="login-container">
+                    <div class="login-box">
+                        <div class="logo-section">
+                            <h1>FactoryBrain AI</h1>
+                            <p>Autonomous Process Optimization</p>
+                        </div>
+                        
+                        <form id="loginForm" class="login-form">
+                            <div class="form-group">
+                                <label for="username">Username</label>
+                                <input type="text" id="username" name="username" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="password">Password</label>
+                                <input type="password" id="password" name="password" required>
+                            </div>
+                            
+                            <button type="submit" class="btn-primary">Sign In</button>
+                            
+                            <div id="errorMessage" class="error-message" style="display: none;"></div>
+                        </form>
+                        
+                        <div class="demo-credentials">
+                            <p>Demo Credentials:</p>
+                            <ul>
+                                <li>Admin: admin / admin123</li>
+                                <li>Supervisor: supervisor / super123</li>
+                                <li>Operator: operator / oper123</li>
+                                <li>Viewer: viewer / view123</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderDashboard() {
+        const currentKPI = APP_STATE.kpiHistory[APP_STATE.kpiHistory.length - 1];
+        const avgInferenceLatency = APP_STATE.inferenceMetrics.length > 0 ?
+            APP_STATE.inferenceMetrics.slice(-10).reduce((sum, m) => sum + m.latency_ms, 0) / Math.min(10, APP_STATE.inferenceMetrics.length) : 0;
+        
+        return `
+            <div class="dashboard-container">
+                ${renderSidebar('dashboard')}
+                
+                <main class="main-content">
+                    <header class="content-header">
+                        <h1>Plant Overview</h1>
+                        <div class="header-actions">
+                            <span class="ws-status ${APP_STATE.wsConnected ? 'connected' : 'disconnected'}">
+                                ${APP_STATE.wsConnected ? 'Live' : 'Disconnected'}
+                            </span>
+                            <span id="lastUpdate">Last updated: ${new Date().toLocaleTimeString()}</span>
+                            <button class="btn-refresh" onclick="refreshDashboard()">Refresh</button>
+                        </div>
+                    </header>
+                    
+                    <div class="kpi-cards">
+                        <div class="kpi-card">
+                            <div class="kpi-icon efficiency"></div>
+                            <div class="kpi-content">
+                                <h3>Overall Efficiency</h3>
+                                <p class="kpi-value" id="efficiency">${currentKPI.overall_efficiency.toFixed(1)}%</p>
+                                <span class="kpi-change positive">+2.3%</span>
+                                <div class="inference-latency">Inference: ${avgInferenceLatency.toFixed(1)}ms</div>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card">
+                            <div class="kpi-icon health"></div>
+                            <div class="kpi-content">
+                                <h3>Average Health</h3>
+                                <p class="kpi-value" id="health">${currentKPI.average_health.toFixed(1)}%</p>
+                                <span class="kpi-change positive">+1.5%</span>
+                                <div class="inference-latency">Active Machines: ${currentKPI.active_machines}</div>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card">
+                            <div class="kpi-icon power"></div>
+                            <div class="kpi-content">
+                                <h3>Power Consumption</h3>
+                                <p class="kpi-value" id="power">${currentKPI.total_power_consumption.toFixed(1)} kW</p>
+                                <span class="kpi-change positive">-3.2%</span>
+                                <div class="inference-latency">CO2: ${(currentKPI.total_power_consumption * ML_CONFIG.co2PerKwh).toFixed(1)} kg</div>
+                            </div>
+                        </div>
+                        
+                        <div class="kpi-card">
+                            <div class="kpi-icon failure"></div>
+                            <div class="kpi-content">
+                                <h3>Failure Risk</h3>
+                                <p class="kpi-value" id="failureRisk">${(currentKPI.failure_risk * 100).toFixed(1)}%</p>
+                                <span class="kpi-change positive">-5.1%</span>
+                                <div class="inference-latency">Predictive Model Accuracy: ${(ML_CONFIG.anomalyAccuracy * 100).toFixed(0)}%</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3>Efficiency Trend (24h)</h3>
+                            <canvas id="efficiencyChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Power Consumption (24h)</h3>
+                            <canvas id="powerChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Machine Status Distribution</h3>
+                            <canvas id="statusChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>CO2 Reduction Progress</h3>
+                            <canvas id="co2Chart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="alerts-section">
+                        <h3>Recent Alerts (Anomaly Detection: ${(ML_CONFIG.anomalyAccuracy * 100).toFixed(0)}% Accuracy)</h3>
+                        <div class="alerts-list">
+                            ${APP_STATE.alerts.slice(0, 5).map(alert => `
+                                <div class="alert-item ${alert.severity} ${alert.acknowledged ? 'acknowledged' : ''}">
+                                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                                        <div>
+                                            <strong>${alert.machine_id}</strong> - ${alert.message}<br>
+                                            <span style="font-size: 11px;">Anomaly Score: ${(alert.anomaly_score * 100).toFixed(1)}% | Type: ${alert.anomaly_type}</span>
+                                            ${alert.voice_alert_generated ? '<br><span class="voice-alert">Voice Alert Generated</span>' : ''}
+                                            ${alert.acknowledged ? `<br><span style="font-size: 11px; color: #7f8c8d;">Acknowledged by ${alert.acknowledged_by}</span>` : ''}
+                                            <div style="font-size: 12px; color: #7f8c8d; margin-top: 5px;">
+                                                ${new Date(alert.timestamp).toLocaleString()}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <span class="status-badge ${alert.severity}">${alert.severity}</span>
+                                            ${!alert.acknowledged && hasPermission('approve') ? `<button class="btn-small" onclick="acknowledgeAlert('${alert.alert_id}')" style="margin-top: 5px;">Acknowledge</button>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                    
+                    <div class="machines-overview">
+                        <h3>Machine Status Overview (Real-Time Monitoring: 30s Refresh)</h3>
+                        <div class="machines-grid">
+                            ${APP_STATE.machines.slice(0, 12).map(machine => {
+                                const healthClass = getHealthClass(machine.health_score);
+                                return `
+                                    <div class="machine-card" onclick="viewMachineFromDashboard('${machine.machine_id}')">
+                                        <h4>${machine.machine_id}</h4>
+                                        <span class="status ${machine.status}">${machine.status}</span>
+                                        <div class="health ${healthClass}">${machine.health_score.toFixed(0)}%</div>
+                                        <div style="font-size: 12px; color: #7f8c8d;">Health Score</div>
+                                        <div style="font-size: 10px; color: #95a5a6; margin-top: 5px;">
+                                            RUL: ${machine.remaining_useful_life_hours.toFixed(0)}h
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                </main>
+            </div>
+        `;
+    }
+
+    function renderMachines() {
+        return `
+            <div class="dashboard-container">
+                ${renderSidebar('machines')}
+                
+                <main class="main-content">
+                    <header class="content-header">
+                        <h1>Machine Monitoring</h1>
+                        <div class="header-actions">
+                            <select id="statusFilter" onchange="filterMachines()">
+                                <option value="">All Status</option>
+                                <option value="operational">Operational</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="standby">Standby</option>
+                                <option value="offline">Offline</option>
+                            </select>
+                            <button class="btn-secondary" onclick="exportMachineData()">Export CSV</button>
+                            <button class="btn-refresh" onclick="render()">Refresh</button>
+                        </div>
+                    </header>
+                    
+                    <div class="machines-table-container">
+                        <table class="machines-table">
+                            <thead>
+                                <tr>
+                                    <th>Machine ID</th>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Health</th>
+                                    <th>Temperature</th>
+                                    <th>Vibration</th>
+                                    <th>Power (kW)</th>
+                                    <th>Efficiency</th>
+                                    <th>Uptime</th>
+                                    <th>RUL (hrs)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="machinesTableBody">
+                                ${APP_STATE.machines.map(machine => {
+                                    const healthClass = getHealthClass(machine.health_score);
+                                    const prediction = predictFailure(machine);
+                                    return `
+                                        <tr>
+                                            <td>${machine.machine_id}</td>
+                                            <td>${machine.name}</td>
+                                            <td>${machine.type}</td>
+                                            <td>${machine.location}</td>
+                                            <td><span class="status-badge ${machine.status}">${machine.status}</span></td>
+                                            <td><span class="health-score ${healthClass}">${machine.health_score.toFixed(1)}%</span></td>
+                                            <td>${machine.temperature.toFixed(1)}°C</td>
+                                            <td>${machine.vibration.toFixed(2)}</td>
+                                            <td>${machine.power_consumption.toFixed(1)}</td>
+                                            <td>${machine.efficiency.toFixed(1)}%</td>
+                                            <td>${machine.uptime_percent.toFixed(1)}%</td>
+                                            <td>${prediction.remaining_useful_life_hours.toFixed(0)}</td>
+                                            <td>
+                                                <button class="btn-small" onclick="viewMachineDetails('${machine.machine_id}')">View</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="machineModal" class="modal">
+                        <div class="modal-content modal-large">
+                            <span class="close" onclick="closeMachineModal()">&times;</span>
+                            <h2 id="modalMachineName"></h2>
+                            
+                            <div class="modal-tabs">
+                                <button class="tab-btn active" onclick="showTab('overview')">Overview</button>
+                                <button class="tab-btn" onclick="showTab('history')">History (24h)</button>
+                                <button class="tab-btn" onclick="showTab('prediction')">Failure Prediction</button>
+                                <button class="tab-btn" onclick="showTab('anomaly')">Anomaly Detection</button>
+                            </div>
+                            
+                            <div id="overviewTab" class="tab-content active">
+                                <div class="machine-details-grid" id="machineDetailsGrid"></div>
+                            </div>
+                            
+                            <div id="historyTab" class="tab-content">
+                                <canvas id="machineHistoryChart"></canvas>
+                            </div>
+                            
+                            <div id="predictionTab" class="tab-content">
+                                <div id="predictionResults"></div>
+                            </div>
+                            
+                            <div id="anomalyTab" class="tab-content">
+                                <div id="anomalyResults"></div>
+                            </div>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        `;
+    }
+
+    function renderAnalytics() {
+        const totalOptimizations = APP_STATE.optimizationActions.length;
+        const energySavings = APP_STATE.optimizationActions.reduce((sum, a) => sum + a.energy_saved_kwh, 0);
+        const costSavings = APP_STATE.optimizationActions.reduce((sum, a) => sum + a.cost_saved, 0);
+        const co2Reduction = APP_STATE.optimizationActions.reduce((sum, a) => sum + a.co2_reduced_kg, 0);
+        const downtimeReduction = 45 + Math.random() * 20;
+        
+        const efficiencyImprovement = 8.5;
+        
+        return `
+            <div class="dashboard-container">
+                ${renderSidebar('analytics')}
+                
+                <main class="main-content">
+                    <header class="content-header">
+                        <h1>Analytics & Reports</h1>
+                        <div class="header-actions">
+                            <select id="timeRange" onchange="render()">
+                                <option value="24">Last 24 Hours</option>
+                                <option value="168">Last 7 Days</option>
+                                <option value="720">Last 30 Days</option>
+                            </select>
+                            <button class="btn-export" onclick="exportAnalyticsReport()">Export PDF</button>
+                            <button class="btn-secondary" onclick="exportAnalyticsCSV()">Export CSV</button>
+                        </div>
+                    </header>
+                    
+                    <div class="analytics-summary">
+                        <div class="summary-card">
+                            <h3>Energy Savings</h3>
+                            <p class="summary-value">${energySavings.toFixed(1)}</p>
+                            <span class="summary-label">kWh saved</span>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3>CO2 Reduction</h3>
+                            <p class="summary-value">${co2Reduction.toFixed(1)}</p>
+                            <span class="summary-label">kg reduced (Target: ${(ML_CONFIG.co2ReductionTarget * 100).toFixed(0)}%)</span>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3>Cost Savings</h3>
+                            <p class="summary-value">$${costSavings.toFixed(0)}</p>
+                            <span class="summary-label">dollars saved</span>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3>Downtime Reduction</h3>
+                            <p class="summary-value">${downtimeReduction.toFixed(1)}</p>
+                            <span class="summary-label">hours saved</span>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3>Optimization Actions</h3>
+                            <p class="summary-value">${totalOptimizations}</p>
+                            <span class="summary-label">total actions executed</span>
+                        </div>
+                        
+                        <div class="summary-card">
+                            <h3>Efficiency Improvement</h3>
+                            <p class="summary-value">${efficiencyImprovement.toFixed(1)}%</p>
+                            <span class="summary-label">plant-wide improvement</span>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-grid-large">
+                        <div class="chart-container-large">
+                            <h3>KPI Trends</h3>
+                            <canvas id="kpiTrendsChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container-large">
+                            <h3>Energy Consumption & CO2 Emissions</h3>
+                            <canvas id="energyChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="charts-grid">
+                        <div class="chart-container">
+                            <h3>Machine Performance Rankings</h3>
+                            <canvas id="performanceChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Failure Risk Distribution</h3>
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Maintenance Statistics by Priority</h3>
+                            <canvas id="maintenanceChart"></canvas>
+                        </div>
+                        
+                        <div class="chart-container">
+                            <h3>Procurement Savings Breakdown</h3>
+                            <canvas id="procurementChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="optimization-report">
+                        <h3>Optimization Report</h3>
+                        <div class="report-section">
+                            <h4>Summary</h4>
+                            <p>Total optimization actions: ${totalOptimizations}</p>
+                            <p>Efficiency improvement: ${efficiencyImprovement.toFixed(1)}%</p>
+                            <p>Average inference latency: ${APP_STATE.inferenceMetrics.length > 0 ? (APP_STATE.inferenceMetrics.reduce((sum, m) => sum + m.latency_ms, 0) / APP_STATE.inferenceMetrics.length).toFixed(2) : '0'} ms (Target: <${ML_CONFIG.inferenceLatencyTarget}ms)</p>
+                        </div>
+                        
+                        <div class="report-section">
+                            <h4>Top Optimizations</h4>
+                            <ul>
+                                <li>Power management optimization: ${APP_STATE.optimizationActions.filter(a => a.type === 'energy_reduction').length} times (high impact)</li>
+                                <li>Predictive maintenance scheduling: ${APP_STATE.optimizationActions.filter(a => a.type === 'predictive_maintenance').length} times (medium impact)</li>
+                                <li>Workload balancing: ${APP_STATE.optimizationActions.filter(a => a.type === 'workload_balancing').length} times (high impact)</li>
+                                <li>Off-peak scheduling: ${APP_STATE.optimizationActions.filter(a => a.type === 'off_peak_scheduling').length} times (medium impact)</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="report-section">
+                            <h4>Recommendations</h4>
+                            <ul>
+                                ${APP_STATE.machines.filter(m => m.health_score < 70).length > 0 ? `<li>Schedule preventive maintenance for ${APP_STATE.machines.filter(m => m.health_score < 70).length} machines with health score below 70%</li>` : ''}
+                                ${APP_STATE.machines.filter(m => m.remaining_useful_life_hours < 168).length > 0 ? `<li>Priority maintenance needed for ${APP_STATE.machines.filter(m => m.remaining_useful_life_hours < 168).length} machines with RUL < 168 hours</li>` : ''}
+                                <li>Optimize power consumption during off-peak hours (22:00-06:00)</li>
+                                ${APP_STATE.machines.filter(m => m.efficiency < 75).length > 0 ? `<li>Consider upgrading ${APP_STATE.machines.filter(m => m.efficiency < 75).length} machines with efficiency below 75%</li>` : ''}
+                                <li>Implement additional sensor monitoring for high-risk machines</li>
+                            </ul>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        `;
+    }
+
+    function renderMaintenance() {
+        const openTickets = APP_STATE.tickets.filter(t => t.status === 'open').length;
+        const inProgressTickets = APP_STATE.tickets.filter(t => t.status === 'in_progress').length;
+        const completedTickets = APP_STATE.tickets.filter(t => t.status === 'completed');
+        
+        const avgResolution = completedTickets.length > 0 ?
+            completedTickets.reduce((sum, t) => sum + (t.actual_downtime_hours || 0), 0) / completedTickets.length : 0;
+        
+        const pendingOrders = APP_STATE.procurementOrders.filter(o => o.status === 'requested' || o.status === 'approved').length;
+        
+        const maintenanceEfficiency = completedTickets.length > 0 ?
+            completedTickets.filter(t => t.actual_downtime_hours <= t.estimated_downtime_hours).length / completedTickets.length * 100 : 0;
+        
+        return `
+            <div class="dashboard-container">
+                ${renderSidebar('maintenance')}
+                
+                <main class="main-content">
+                    <header class="content-header">
+                        <h1>Maintenance Management</h1>
+                        <div class="header-actions">
+                            ${hasPermission('create_ticket') ? '<button class="btn-primary" onclick="showCreateTicketModal()">Create Ticket</button>' : ''}
+                            ${hasPermission('approve') ? '<button class="btn-secondary" onclick="showProcurementModal()">Request Parts</button>' : ''}
+                            <button class="btn-warning" onclick="navigateTo(\'inventory\')">View Inventory</button>
+                        </div>
+                    </header>
+                    
+                    <div class="filter-bar">
+                        <select id="statusFilter" onchange="filterTickets()">
+                            <option value="">All Status</option>
+                            <option value="open">Open</option>
+                            <option value="in_progress">In Progress</option>
+                            <option value="pending_parts">Pending Parts</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                        
+                        <select id="priorityFilter" onchange="filterTickets()">
+                            <option value="">All Priorities</option>
+                            <option value="critical">Critical</option>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                        
+                        <input type="text" id="machineFilter" placeholder="Machine ID" onchange="filterTickets()">
+                        
+                        <select id="acknowledgedFilter" onchange="filterTickets()">
+                            <option value="">All Alerts</option>
+                            <option value="acknowledged">Acknowledged</option>
+                            <option value="unacknowledged">Unacknowledged</option>
+                        </select>
+                    </div>
+                    
+                    <div class="maintenance-stats">
+                        <div class="stat-card">
+                            <h4>Open Tickets</h4>
+                            <p>${openTickets}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>In Progress</h4>
+                            <p>${inProgressTickets}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Avg Resolution Time</h4>
+                            <p>${avgResolution.toFixed(1)} hrs</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Pending Orders</h4>
+                            <p>${pendingOrders}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Maintenance Efficiency</h4>
+                            <p>${maintenanceEfficiency.toFixed(0)}%</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Low Stock Items</h4>
+                            <p>${APP_STATE.inventory.filter(i => i.needs_reorder).length}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="tickets-container">
+                        <h3>Maintenance Tickets</h3>
+                        <button class="btn-secondary" onclick="exportMaintenanceRecords()" style="float: right;">Export Records</button>
+                        <table class="tickets-table">
+                            <thead>
+                                <tr>
+                                    <th>Ticket ID</th>
+                                    <th>Machine</th>
+                                    <th>Title</th>
+                                    <th>Status</th>
+                                    <th>Priority</th>
+                                    <th>Assigned To</th>
+                                    <th>Est. Downtime</th>
+                                    <th>Est. Cost</th>
+                                    <th>Created</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ticketsTableBody">
+                                ${APP_STATE.tickets.map(ticket => {
+                                    const offPeak = scheduleOffPeakMaintenance(ticket);
+                                    return `
+                                        <tr>
+                                            <td>${ticket.ticket_id}</td>
+                                            <td>${ticket.machine_id}</td>
+                                            <td>${ticket.title}${offPeak.scheduled ? '<span class="metric-badge good">Off-Peak</span>' : ''}</td>
+                                            <td><span class="status-badge ${ticket.status}">${ticket.status.replace('_', ' ')}</span></td>
+                                            <td><span class="priority-badge ${ticket.priority}">${ticket.priority}</span></td>
+                                            <td>${ticket.assigned_to || 'Unassigned'}</td>
+                                            <td>${ticket.estimated_downtime_hours.toFixed(1)}h</td>
+                                            <td>$${ticket.cost_estimate.toFixed(0)}</td>
+                                            <td>${new Date(ticket.created_at).toLocaleString()}</td>
+                                            <td>
+                                                <button class="btn-small" onclick="viewTicketDetails('${ticket.ticket_id}')">View</button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="procurement-container">
+                        <h3>Procurement Orders (AI-Negotiated)</h3>
+                        <button class="btn-secondary" onclick="exportProcurementOrders()" style="float: right;">Export Orders</button>
+                        <table class="procurement-table">
+                            <thead>
+                                <tr>
+                                    <th>Order ID</th>
+                                    <th>Part Name</th>
+                                    <th>Quantity</th>
+                                    <th>Supplier</th>
+                                    <th>Base Price</th>
+                                    <th>Negotiated Price</th>
+                                    <th>Savings</th>
+                                    <th>Status</th>
+                                    <th>Delivery</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="procurementTableBody">
+                                ${APP_STATE.procurementOrders.map(order => `
+                                    <tr>
+                                            <td>${order.order_id}</td>
+                                            <td>${order.part_name}</td>
+                                            <td>${order.quantity}</td>
+                                            <td>${order.supplier}<br><span style="font-size: 10px;">Score: ${order.supplier_score.toFixed(1)}</span></td>
+                                            <td>$${order.base_price.toFixed(2)}</td>
+                                            <td>$${order.negotiated_price.toFixed(2)}</td>
+                                            <td class="savings">$${order.savings.toFixed(2)} (${order.savings_percent.toFixed(1)}%)</td>
+                                            <td><span class="status-badge ${order.status}">${order.status.replace('_', ' ')}</span></td>
+                                            <td>${new Date(order.estimated_delivery).toLocaleDateString()}</td>
+                                            <td>
+                                                ${order.status === 'requested' && hasPermission('approve') ? `<button class="btn-small" onclick="approveOrder('${order.order_id}')">Approve</button>` : ''}
+                                                <button class="btn-small" onclick="viewOrderDetails('${order.order_id}')">Details</button>
+                                            </td>
+                                        </tr>
+
+`).join('')}
+</tbody>
+</table>
+</div>
+${renderModals()}
+                </main>
+            </div>
+        `;
+    }
+
+    function renderInventory() {
+        return `
+            <div class="dashboard-container">
+                ${renderSidebar('inventory')}
+                
+                <main class="main-content">
+                    <header class="content-header">
+                        <h1>Inventory Management</h1>
+                        <div class="header-actions">
+                            <button class="btn-secondary" onclick="exportInventoryData()">Export CSV</button>
+                            <button class="btn-refresh" onclick="render()">Refresh</button>
+                        </div>
+                    </header>
+                    
+                    <div class="maintenance-stats">
+                        <div class="stat-card">
+                            <h4>Total Parts</h4>
+                            <p>${APP_STATE.inventory.length}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Low Stock Items</h4>
+                            <p class="low-stock">${APP_STATE.inventory.filter(i => i.needs_reorder).length}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Total Inventory Value</h4>
+                            <p>$${APP_STATE.inventory.reduce((sum, i) => sum + (i.current_quantity * i.unit_cost), 0).toFixed(0)}</p>
+                        </div>
+                        <div class="stat-card">
+                            <h4>Reorder Threshold</h4>
+                            <p>${(PROCUREMENT_CONFIG.reorderThreshold * 100).toFixed(0)}%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="inventory-container">
+                        <h3>Parts Inventory</h3>
+                        <table class="inventory-table">
+                            <thead>
+                                <tr>
+                                    <th>Part ID</th>
+                                    <th>Part Name</th>
+                                    <th>Part Number</th>
+                                    <th>Current Qty</th>
+                                    <th>Max Qty</th>
+                                    <th>Reorder Level</th>
+                                    <th>Unit Cost</th>
+                                    <th>Total Value</th>
+                                    <th>Location</th>
+                                    <th>Last Restocked</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${APP_STATE.inventory.map(item => `
+                                    <tr>
+                                        <td>${item.part_id}</td>
+                                        <td>${item.part_name}</td>
+                                        <td>${item.part_number}</td>
+                                        <td ${item.needs_reorder ? 'class="low-stock"' : ''}>${item.current_quantity}</td>
+                                        <td>${item.max_quantity}</td>
+                                        <td>${item.reorder_level}</td>
+                                        <td>$${item.unit_cost.toFixed(2)}</td>
+                                        <td>$${(item.current_quantity * item.unit_cost).toFixed(2)}</td>
+                                        <td>${item.storage_location}</td>
+                                        <td>${new Date(item.last_restocked).toLocaleDateString()}</td>
+                                        <td>
+                                            ${item.needs_reorder ? '<span class="metric-badge critical">Reorder Needed</span>' : '<span class="metric-badge good">OK</span>'}
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- ===== VOICE COMMAND LOG - ADD HERE ===== -->
+                        <div class="tickets-container">
+                            <h3>Voice Command Log</h3>
+                            <button class="btn-secondary" onclick="exportVoiceLog()" style="float: right;">Export Log</button>
+                            <button class="btn-warning" onclick="testVoiceAlert()" style="float: right; margin-right: 10px;">Test Voice Alert</button>
+                            <table class="tickets-table">
+                                <thead>
+                                    <tr>
+                                        <th>Timestamp</th>
+                                        <th>Source</th>
+                                        <th>Command/Alert</th>
+                                        <th>User</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${(APP_STATE.voiceCommandLog || []).slice(0, 20).map(log => `
+                                        <tr>
+                                            <td>${new Date(log.timestamp).toLocaleString()}</td>
+                                            <td>${log.source}</td>
+                                            <td>${log.command.substring(0, 100)}${log.command.length > 100 ? '...' : ''}</td>
+                                            <td>${log.user}</td>
+                                            <td>
+                                                <button class="btn-small" onclick="replayVoiceCommand('${log.command.replace(/'/g, "\\'")}')">Replay</button>
+                                            </td>
+                                        </tr>
+                                    `).join('')}
+                                    ${(!APP_STATE.voiceCommandLog || APP_STATE.voiceCommandLog.length === 0) ? '<tr><td colspan="5">No voice commands logged yet</td></tr>' : ''}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- ===== END VOICE COMMAND LOG ===== -->
+                    
+                    <div class="supplier-container">
+                        <h3>Supplier Management</h3>
+                        <table class="supplier-table">
+                            <thead>
+                                <tr>
+                                    <th>Supplier ID</th>
+                                    <th>Name</th>
+                                    <th>Reliability Rating</th>
+                                    <th>Price Factor</th>
+                                    <th>Avg Delivery Days</th>
+                                    <th>Total Orders</th>
+                                    <th>Total Value</th>
+                                    <th>Negotiation History</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${APP_STATE.suppliers.map(supplier => `
+                                    <tr>
+                                        <td>${supplier.supplier_id}</td>
+                                        <td>${supplier.name}</td>
+                                        <td>${supplier.reliability_rating.toFixed(1)}%</td>
+                                        <td>${supplier.base_price_factor.toFixed(2)}x</td>
+                                        <td>${supplier.typical_delivery_days} days</td>
+                                        <td>${supplier.total_orders}</td>
+                                        <td>$${supplier.total_value.toLocaleString()}</td>
+                                        <td>${supplier.negotiation_history} times</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </main>
+            </div>
+        `;
+    }
+
+    function renderModals() {
+        return `
+            <div id="createTicketModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeCreateTicketModal()">&times;</span>
+                    <h2>Create Maintenance Ticket</h2>
+                    <form id="createTicketForm" onsubmit="handleCreateTicket(event)">
+                        <div class="form-group">
+                            <label for="ticketMachineId">Machine ID</label>
+                            <input type="text" id="ticketMachineId" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticketTitle">Title</label>
+                            <input type="text" id="ticketTitle" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticketDescription">Description</label>
+                            <textarea id="ticketDescription" rows="4" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticketPriority">Priority</label>
+                            <select id="ticketPriority" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ticketFailureType">Failure Type</label>
+                            <select id="ticketFailureType">
+                                <option value="">Select type</option>
+                                <option value="overheating">Overheating</option>
+                                <option value="mechanical_stress">Mechanical Stress</option>
+                                <option value="pressure_abnormality">Pressure Abnormality</option>
+                                <option value="electrical">Electrical</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Create Ticket</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="procurementModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeProcurementModal()">&times;</span>
+                    <h2>Request Spare Parts</h2>
+                    <form id="procurementForm" onsubmit="handleProcurementRequest(event)">
+                        <div class="form-group">
+                            <label for="partName">Part Name</label>
+                            <input type="text" id="partName" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="partNumber">Part Number</label>
+                            <input type="text" id="partNumber" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="quantity">Quantity</label>
+                            <input type="number" id="quantity" min="1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="urgency">Urgency</label>
+                            <select id="urgency" required>
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="relatedMachine">Related Machine (Optional)</label>
+                            <input type="text" id="relatedMachine">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="relatedTicket">Related Ticket (Optional)</label>
+                            <input type="text" id="relatedTicket">
+                        </div>
+                        
+                        <button type="submit" class="btn-primary">Submit Request</button>
+                    </form>
+                </div>
+            </div>
+            
+            <div id="ticketDetailsModal" class="modal">
+                <div class="modal-content modal-large">
+                    <span class="close" onclick="closeTicketDetailsModal()">&times;</span>
+                    <h2 id="ticketDetailsTitle"></h2>
+                    
+                    <div class="ticket-details" id="ticketDetailsContent"></div>
+                </div>
+            </div>
+            
+            <div id="orderDetailsModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeOrderDetailsModal()">&times;</span>
+                    <h2 id="orderDetailsTitle"></h2>
+                    
+                    <div id="orderDetailsContent"></div>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderSidebar(activeView) {
+        return `
+            <nav class="sidebar">
+                <div class="sidebar-header">
+                    <h2>FactoryBrain AI</h2>
+                </div>
+                <ul class="nav-menu">
+                    <li><a href="#" class="${activeView === 'dashboard' ? 'active' : ''}" onclick="navigateTo('dashboard')">Dashboard</a></li>
+                    <li><a href="#" class="${activeView === 'machines' ? 'active' : ''}" onclick="navigateTo('machines')">Machines</a></li>
+                    <li><a href="#" class="${activeView === 'analytics' ? 'active' : ''}" onclick="navigateTo('analytics')">Analytics</a></li>
+                    <li><a href="#" class="${activeView === 'maintenance' ? 'active' : ''}" onclick="navigateTo('maintenance')">Maintenance</a></li>
+                    <li><a href="#" class="${activeView === 'inventory' ? 'active' : ''}" onclick="navigateTo('inventory')">Inventory</a></li>
+                    <li><a href="#" onclick="logout()">Logout</a></li>
+                </ul>
+                <div class="user-info">
+                    <div>Logged in as: <strong>${APP_STATE.currentUser.username}</strong></div>
+                    <div>Role: <span class="role-badge">${APP_STATE.currentUser.role}</span></div>
+                    <div style="font-size: 11px; color: #95a5a6; margin-top: 5px;">
+                        Session expires: ${new Date(APP_STATE.tokenExpiry).toLocaleTimeString()}
+                    </div>
+                </div>
+            </nav>
+        `;
+    }
+
+    function render() {
+        const app = document.getElementById('app');
+        
+        if (APP_STATE.currentView === 'login') {
+            app.innerHTML = renderLogin();
+            document.getElementById('loginForm').addEventListener('submit', handleLogin);
+        } else if (APP_STATE.currentView === 'dashboard') {
+            app.innerHTML = renderDashboard();
+            setTimeout(renderDashboardCharts, 100);
+            orchestrateAgents();
+        } else if (APP_STATE.currentView === 'machines') {
+            app.innerHTML = renderMachines();
+        } else if (APP_STATE.currentView === 'analytics') {
+            app.innerHTML = renderAnalytics();
+            setTimeout(renderAnalyticsCharts, 100);
+        } else if (APP_STATE.currentView === 'maintenance') {
+            app.innerHTML = renderMaintenance();
+        } else if (APP_STATE.currentView === 'inventory') {
+            app.innerHTML = renderInventory();
+        }
+    }
+
+    function handleLogin(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('errorMessage');
+        
+        if (login(username, password)) {
+            errorDiv.style.display = 'none';
+        } else {
+            errorDiv.textContent = 'Invalid username or password';
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    function refreshDashboard() {
+        document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleTimeString()}`;
+        renderDashboardCharts();
+        updateRealtimeKPIs();
+    }
+
+    function renderDashboardCharts() {
+        renderEfficiencyChart();
+        renderPowerChart();
+        renderStatusChart();
+        renderCO2Chart();
+    }
+
+    function renderEfficiencyChart() {
+        const ctx = document.getElementById('efficiencyChart');
+        if (!ctx) return;
+        
+        const labels = APP_STATE.kpiHistory.map(d => {
+            const date = new Date(d.timestamp);
+            return date.getHours() + ':00';
+        });
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Overall Efficiency (%)',
+                    data: APP_STATE.kpiHistory.map(d => d.overall_efficiency),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 70,
+                        max: 100
+                    }
+                }
+            }
+        });
+    }
+
+    function renderPowerChart() {
+        const ctx = document.getElementById('powerChart');
+        if (!ctx) return;
+        
+        const labels = APP_STATE.kpiHistory.map(d => {
+            const date = new Date(d.timestamp);
+            return date.getHours() + ':00';
+        });
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Power Consumption (kW)',
+                    data: APP_STATE.kpiHistory.map(d => d.total_power_consumption),
+                    backgroundColor: 'rgba(241, 196, 15, 0.6)',
+                    borderColor: '#f39c12',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: 800
+                    }
+                }
+            }
+        });
+    }
+
+    function renderStatusChart() {
+        const ctx = document.getElementById('statusChart');
+        if (!ctx) return;
+        
+        const statusCounts = {};
+        APP_STATE.machines.forEach(machine => {
+            statusCounts[machine.status] = (statusCounts[machine.status] || 0) + 1;
+        });
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(statusCounts).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+                datasets: [{
+                    data: Object.values(statusCounts),
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(241, 196, 15, 0.8)',
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+    }
+
+    function renderCO2Chart() {
+        const ctx = document.getElementById('co2Chart');
+        if (!ctx) return;
+        
+        const labels = APP_STATE.energyHistory.map(d => {
+            const date = new Date(d.timestamp);
+            return date.getHours() + ':00';
+        });
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Baseline CO2 (kg)',
+                    data: APP_STATE.energyHistory.map(d => d.baseline_co2_kg),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    borderDash: [5, 5],
+                    tension: 0,
+                    fill: false
+                }, {
+                    label: 'Optimized CO2 (kg)',
+                    data: APP_STATE.energyHistory.map(d => d.estimated_co2_kg),
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+    }
+
+    function renderAnalyticsCharts() {
+        renderKPITrendsChart();
+        renderEnergyChart();
+        renderPerformanceChart();
+        renderRiskChart();
+        renderMaintenanceChart();
+        renderProcurementChart();
+    }
+
+    function renderKPITrendsChart() {
+        const ctx = document.getElementById('kpiTrendsChart');
+        if (!ctx) return;
+        
+        const labels = APP_STATE.kpiHistory.map(d => new Date(d.timestamp).toLocaleTimeString());
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Efficiency (%)',
+                    data: APP_STATE.kpiHistory.map(d => d.overall_efficiency),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)'
+                }, {
+                    label: 'Health (%)',
+                    data: APP_STATE.kpiHistory.map(d => d.average_health),
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)'
+                }, {
+                    label: 'Failure Risk (%)',
+                    data: APP_STATE.kpiHistory.map(d => d.failure_risk * 100),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    }
+                }
+            }
+        });
+    }
+
+    function renderEnergyChart() {
+        const ctx = document.getElementById('energyChart');
+        if (!ctx) return;
+        
+        const labels = APP_STATE.energyHistory.map(d => new Date(d.timestamp).toLocaleTimeString());
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Power Consumption (kW)',
+                    data: APP_STATE.energyHistory.map(d => d.total_power_kw),
+                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                    yAxisID: 'y'
+                }, {
+                    label: 'CO2 Emissions (kg)',
+                    data: APP_STATE.energyHistory.map(d => d.estimated_co2_kg),
+                    backgroundColor: 'rgba(231, 76, 60, 0.6)',
+                    yAxisID: 'y1'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left'
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderPerformanceChart() {
+        const ctx = document.getElementById('performanceChart');
+        if (!ctx) return;
+        
+        const topMachines = APP_STATE.machines.sort((a, b) => b.efficiency - a.efficiency).slice(0, 10);
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: topMachines.map(m => m.machine_id),
+                datasets: [{
+                    label: 'Efficiency (%)',
+                    data: topMachines.map(m => m.efficiency),
+                    backgroundColor: 'rgba(46, 204, 113, 0.6)'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y'
+            }
+        });
+    }
+
+    function renderRiskChart() {
+        const ctx = document.getElementById('riskChart');
+        if (!ctx) return;
+        
+        const riskLevels = {
+            'Low (< 20%)': 0,
+            'Medium (20-40%)': 0,
+            'High (40-60%)': 0,
+            'Critical (> 60%)': 0
+        };
+        
+        APP_STATE.machines.forEach(m => {
+            const risk = (100 - m.health_score);
+            if (risk < 20) riskLevels['Low (< 20%)']++;
+            else if (risk < 40) riskLevels['Medium (20-40%)']++;
+            else if (risk < 60) riskLevels['High (40-60%)']++;
+            else riskLevels['Critical (> 60%)']++;
+        });
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(riskLevels),
+                datasets: [{
+                    data: Object.values(riskLevels),
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(241, 196, 15, 0.8)',
+                        'rgba(230, 126, 34, 0.8)',
+                        'rgba(231, 76, 60, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    function renderMaintenanceChart() {
+        const ctx = document.getElementById('maintenanceChart');
+        if (!ctx) return;
+        
+        const priorityCounts = {
+            'Critical': 0,
+            'High': 0,
+            'Medium': 0,
+            'Low': 0
+        };
+        
+        APP_STATE.tickets.forEach(t => {
+            priorityCounts[t.priority.charAt(0).toUpperCase() + t.priority.slice(1)]++;
+        });
+        
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: Object.keys(priorityCounts),
+                datasets: [{
+                    data: Object.values(priorityCounts),
+                    backgroundColor: [
+                        'rgba(231, 76, 60, 0.8)',
+                        'rgba(230, 126, 34, 0.8)',
+                        'rgba(241, 196, 15, 0.8)',
+                        'rgba(52, 152, 219, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    function renderProcurementChart() {
+        const ctx = document.getElementById('procurementChart');
+        if (!ctx) return;
+        
+        const totalSavings = APP_STATE.procurementOrders.reduce((sum, o) => sum + o.savings, 0);
+        const energySavings = APP_STATE.optimizationActions
+            .filter(a => a.type === 'energy_reduction')
+            .reduce((sum, a) => sum + a.cost_saved, 0);
+        const maintenanceCost = totalSavings * 0.4;
+        const procurementSavings = totalSavings * 0.6;
+        
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Energy Savings', 'Maintenance Cost', 'Procurement Savings'],
+                datasets: [{
+                    data: [energySavings, maintenanceCost, procurementSavings],
+                    backgroundColor: [
+                        'rgba(46, 204, 113, 0.8)',
+                        'rgba(52, 152, 219, 0.8)',
+                        'rgba(155, 89, 182, 0.8)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+
+    function viewMachineFromDashboard(machineId) {
+        APP_STATE.currentView = 'machines';
+        render();
+        setTimeout(() => viewMachineDetails(machineId), 100);
+    }
+
+    function viewMachineDetails(machineId) {
+        const machine = APP_STATE.machines.find(m => m.machine_id === machineId);
+        if (!machine) return;
+        
+        document.getElementById('modalMachineName').textContent = machine.name;
+        
+        const healthClass = getHealthClass(machine.health_score);
+        const prediction = predictFailure(machine);
+        const anomaly = performAnomalyDetection(machine);
+        
+        document.getElementById('machineDetailsGrid').innerHTML = `
+            <div class="detail-item">
+                <label>Machine ID:</label>
+                <span>${machine.machine_id}</span>
+            </div>
+            <div class="detail-item">
+                <label>Type:</label>
+                <span>${machine.type}</span>
+            </div>
+            <div class="detail-item">
+                <label>Location:</label>
+                <span>${machine.location}</span>
+            </div>
+            <div class="detail-item">
+                <label>Status:</label>
+                <span><span class="status-badge ${machine.status}">${machine.status}</span></span>
+            </div>
+            <div class="detail-item">
+                <label>Health Score:</label>
+                <span class="health-score ${healthClass}">${machine.health_score.toFixed(1)}% <span class="metric-badge ${healthClass}">${healthClass.toUpperCase()}</span></span>
+            </div>
+            <div class="detail-item">
+                <label>Temperature:</label>
+                <span>${machine.temperature.toFixed(1)}°C</span>
+            </div>
+            <div class="detail-item">
+                <label>Vibration:</label>
+                <span>${machine.vibration.toFixed(2)}</span>
+            </div>
+            <div class="detail-item">
+                <label>Pressure:</label>
+                <span>${machine.pressure.toFixed(1)}</span>
+            </div>
+            <div class="detail-item">
+                <label>Power Consumption:</label>
+                <span>${machine.power_consumption.toFixed(1)} kW</span>
+            </div>
+            <div class="detail-item">
+                <label>Efficiency:</label>
+                <span>${machine.efficiency.toFixed(1)}%</span>
+            </div>
+            <div class="detail-item">
+                <label>Uptime:</label>
+                <span>${machine.uptime_percent.toFixed(1)}%</span>
+            </div>
+            <div class="detail-item">
+                <label>Downtime:</label>
+<span>${machine.downtime_hours.toFixed(1)} hours</span>
+</div>
+<div class="detail-item">
+<label>Production Output:</label>
+<span>${machine.production_output} units</span>
+</div>
+<div class="detail-item">
+<label>Quality Score:</label>
+<span>${machine.quality_score.toFixed(1)}%</span>
+</div>
+`;
+document.getElementById('predictionResults').innerHTML = `
+            <div class="report-section">
+                <h4>Failure Prediction (Gradient Boosting Model)</h4>
+                <p><strong>24-hour probability:</strong> ${(prediction.probability_24h * 100).toFixed(1)}%</p>
+                <p><strong>72-hour probability:</strong> ${(prediction.probability_72h * 100).toFixed(1)}%</p>
+                <p><strong>168-hour probability:</strong> ${(prediction.probability_168h * 100).toFixed(1)}%</p>
+                <p><strong>Remaining Useful Life:</strong> ${prediction.remaining_useful_life_hours.toFixed(0)} hours</p>
+                <p><strong>Inference Latency:</strong> ${prediction.latency_ms.toFixed(2)} ms</p>
+            </div>
+            <div class="report-section">
+                <h4>Contributing Factors</h4>
+                <ul>
+                    ${prediction.contributing_factors.map(f => `<li>${f}</li>`).join('')}
+                    ${prediction.contributing_factors.length === 0 ? '<li>No significant contributing factors detected</li>' : ''}
+                </ul>
+            </div>
+            ${prediction.remaining_useful_life_hours < 168 ? '<div class="negotiation-info">Priority maintenance recommended: RUL below 168 hours threshold</div>' : ''}
+        `;
+        
+        document.getElementById('anomalyResults').innerHTML = `
+            <div class="report-section">
+                <h4>Anomaly Detection (Random Forest Classifier)</h4>
+                <p><strong>Detection Status:</strong> ${anomaly.detected ? '<span class="metric-badge critical">ANOMALY DETECTED</span>' : '<span class="metric-badge good">NORMAL</span>'}</p>
+                <p><strong>Anomaly Score:</strong> ${(anomaly.score * 100).toFixed(1)}% (Threshold: ${(ML_CONFIG.anomalyThreshold * 100).toFixed(0)}%)</p>
+                <p><strong>Model Accuracy:</strong> ${(ML_CONFIG.anomalyAccuracy * 100).toFixed(0)}%</p>
+                <p><strong>Inference Latency:</strong> ${anomaly.latency_ms.toFixed(2)} ms (Target: <${ML_CONFIG.inferenceLatencyTarget}ms)</p>
+                ${anomaly.detected ? `<p><strong>Anomaly Type:</strong> ${anomaly.type}</p>` : ''}
+                ${anomaly.detected ? `<p><strong>Confidence:</strong> ${(anomaly.confidence * 100).toFixed(0)}%</p>` : ''}
+            </div>
+            ${anomaly.detected ? `
+                <div class="voice-alert">
+                    Voice Alert Generated: Critical anomaly detected in ${machine.machine_id}
+                </div>
+                <div class="report-section">
+                    <h4>Repair Instructions</h4>
+                    <p>${generateRepairInstructions(anomaly.type)}</p>
+                </div>
+                <!-- ===== ADD VOICE BUTTON HERE ===== -->
+                    <button class="btn-warning" onclick="speakRepairInstructions('${anomaly.type}', '${machine.machine_id}')" style="margin-top: 10px;">
+                        Play Voice Instructions
+                    </button>
+                    <!-- ===== END VOICE BUTTON ===== -->
+            ` : ''}
+        `;
+        
+        document.getElementById('machineModal').style.display = 'block';
+        
+        setTimeout(() => renderMachineHistoryChart(machineId), 100);
+    }
+
+    function renderMachineHistoryChart(machineId) {
+        const ctx = document.getElementById('machineHistoryChart');
+        if (!ctx) return;
+        
+        const history = [];
+        for (let i = 0; i < 24; i++) {
+            const timestamp = new Date(Date.now() - (23 - i) * 3600000);
+            history.push({
+                timestamp: timestamp.toISOString(),
+                temperature: 50 + Math.random() * 30,
+                vibration: 0.1 + Math.random() * 0.5,
+                health_score: 75 + Math.random() * 20
+            });
+        }
+        
+        const labels = history.map(h => new Date(h.timestamp).toLocaleTimeString());
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Temperature (°C)',
+                    data: history.map(h => h.temperature),
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                    yAxisID: 'y'
+                }, {
+                    label: 'Vibration',
+                    data: history.map(h => h.vibration),
+                    borderColor: '#3498db',
+                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                    yAxisID: 'y1'
+                }, {
+                    label: 'Health Score (%)',
+                    data: history.map(h => h.health_score),
+                    borderColor: '#2ecc71',
+                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                    yAxisID: 'y2'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        display: true,
+                        position: 'left'
+                    },
+                    y1: {
+                        type: 'linear',
+                        display: true,
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false
+                        }
+                    },
+                    y2: {
+                        type: 'linear',
+                        display: false
+                    }
+                }
+            }
+        });
+    }
+
+    function closeMachineModal() {
+        document.getElementById('machineModal').style.display = 'none';
+    }
+
+    function showTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        
+        event.target.classList.add('active');
+        document.getElementById(tabName + 'Tab').classList.add('active');
+    }
+
+    function filterMachines() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        if (!statusFilter) {
+            render();
+            return;
+        }
+        
+        const filteredMachines = APP_STATE.machines.filter(m => m.status === statusFilter);
+        const tbody = document.getElementById('machinesTableBody');
+        
+        tbody.innerHTML = filteredMachines.map(machine => {
+            const healthClass = getHealthClass(machine.health_score);
+            const prediction = predictFailure(machine);
+            return `
+                <tr>
+                    <td>${machine.machine_id}</td>
+                    <td>${machine.name}</td>
+                    <td>${machine.type}</td>
+                    <td>${machine.location}</td>
+                    <td><span class="status-badge ${machine.status}">${machine.status}</span></td>
+                    <td><span class="health-score ${healthClass}">${machine.health_score.toFixed(1)}%</span></td>
+                    <td>${machine.temperature.toFixed(1)}°C</td>
+                    <td>${machine.vibration.toFixed(2)}</td>
+                    <td>${machine.power_consumption.toFixed(1)}</td>
+                    <td>${machine.efficiency.toFixed(1)}%</td>
+                    <td>${machine.uptime_percent.toFixed(1)}%</td>
+                    <td>${prediction.remaining_useful_life_hours.toFixed(0)}</td>
+                    <td>
+                        <button class="btn-small" onclick="viewMachineDetails('${machine.machine_id}')">View</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function filterTickets() {
+        const statusFilter = document.getElementById('statusFilter').value;
+        const priorityFilter = document.getElementById('priorityFilter').value;
+        const machineFilter = document.getElementById('machineFilter').value;
+        const acknowledgedFilter = document.getElementById('acknowledgedFilter')?.value;
+        
+        let filteredTickets = APP_STATE.tickets;
+        
+        if (statusFilter) {
+            filteredTickets = filteredTickets.filter(t => t.status === statusFilter);
+        }
+        if (priorityFilter) {
+            filteredTickets = filteredTickets.filter(t => t.priority === priorityFilter);
+        }
+        if (machineFilter) {
+            filteredTickets = filteredTickets.filter(t => t.machine_id.includes(machineFilter));
+        }
+        if (acknowledgedFilter === 'acknowledged') {
+            filteredTickets = filteredTickets.filter(t => t.acknowledged);
+        } else if (acknowledgedFilter === 'unacknowledged') {
+            filteredTickets = filteredTickets.filter(t => !t.acknowledged);
+        }
+        
+        const tbody = document.getElementById('ticketsTableBody');
+        tbody.innerHTML = filteredTickets.map(ticket => {
+            const offPeak = scheduleOffPeakMaintenance(ticket);
+            return `
+                <tr>
+                    <td>${ticket.ticket_id}</td>
+                    <td>${ticket.machine_id}</td>
+                    <td>${ticket.title}${offPeak.scheduled ? '<span class="metric-badge good">Off-Peak</span>' : ''}</td>
+                    <td><span class="status-badge ${ticket.status}">${ticket.status.replace('_', ' ')}</span></td>
+                    <td><span class="priority-badge ${ticket.priority}">${ticket.priority}</span></td>
+                    <td>${ticket.assigned_to || 'Unassigned'}</td>
+                    <td>${ticket.estimated_downtime_hours.toFixed(1)}h</td>
+                    <td>$${ticket.cost_estimate.toFixed(0)}</td>
+                    <td>${new Date(ticket.created_at).toLocaleString()}</td>
+                    <td>
+                        <button class="btn-small" onclick="viewTicketDetails('${ticket.ticket_id}')">View</button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    function showCreateTicketModal() {
+        document.getElementById('createTicketModal').style.display = 'block';
+    }
+
+    function closeCreateTicketModal() {
+        document.getElementById('createTicketModal').style.display = 'none';
+        document.getElementById('createTicketForm').reset();
+    }
+
+    function handleCreateTicket(e) {
+        e.preventDefault();
+        
+        const priority = document.getElementById('ticketPriority').value;
+        const estimatedDowntime = 2 + Math.random() * 6;
+        const estimatedCost = 500 + Math.random() * 2000;
+        
+        const newTicket = {
+            ticket_id: `TKT-${String(APP_STATE.tickets.length + 1).padStart(4, '0')}`,
+            machine_id: document.getElementById('ticketMachineId').value,
+            title: document.getElementById('ticketTitle').value,
+            description: document.getElementById('ticketDescription').value,
+            priority: priority,
+            failure_type: document.getElementById('ticketFailureType').value || null,
+            status: 'open',
+            assigned_to: null,
+            reported_by: APP_STATE.currentUser.username,
+            created_at: new Date().toISOString(),
+            estimated_downtime_hours: estimatedDowntime,
+            cost_estimate: estimatedCost,
+            actual_downtime_hours: null,
+            actual_cost: null,
+            repair_steps: 'Pending assessment',
+            acknowledged: false,
+            acknowledged_by: null,
+            acknowledged_at: null
+        };
+        
+        APP_STATE.tickets.unshift(newTicket);
+        closeCreateTicketModal();
+        render();
+        alert('Ticket created successfully');
+    }
+
+    function showProcurementModal() {
+        document.getElementById('procurementModal').style.display = 'block';
+    }
+
+    function closeProcurementModal() {
+        document.getElementById('procurementModal').style.display = 'none';
+        document.getElementById('procurementForm').reset();
+    }
+
+    function handleProcurementRequest(e) {
+        e.preventDefault();
+        
+        const quantity = parseInt(document.getElementById('quantity').value);
+        const urgency = document.getElementById('urgency').value;
+        const basePrice = 50 + Math.random() * 500;
+        const negotiationStrategy = PROCUREMENT_CONFIG.negotiationStrategies[urgency];
+        const targetReduction = negotiationStrategy.targetReduction;
+        const achievedReduction = targetReduction * (0.7 + Math.random() * 0.6);
+        const negotiatedPrice = basePrice * (1 - achievedReduction);
+        const totalPrice = quantity * negotiatedPrice;
+        const savings = quantity * basePrice - totalPrice;
+        const supplier = APP_STATE.suppliers[Math.floor(Math.random() * APP_STATE.suppliers.length)];
+        
+        const newOrder = {
+            order_id: `ORD-${String(APP_STATE.procurementOrders.length + 1).padStart(4, '0')}`,
+            part_name: document.getElementById('partName').value,
+            part_number: document.getElementById('partNumber').value,
+            quantity: quantity,
+            supplier: supplier.name,
+            base_price: basePrice,
+            negotiated_price: negotiatedPrice,
+            total_price: totalPrice,
+            savings: savings,
+            savings_percent: achievedReduction * 100,
+            status: 'requested',
+            estimated_delivery: new Date(Date.now() + Math.random() * 14 * 24 * 3600000).toISOString(),
+            urgency: urgency,
+            negotiation_strategy: `AI-optimized ${urgency} urgency strategy targeting ${(targetReduction * 100).toFixed(0)}% reduction`,
+            supplier_score: supplier.reliability_rating
+        };
+        
+        APP_STATE.procurementOrders.unshift(newOrder);
+        closeProcurementModal();
+        render();
+        alert(`Procurement request submitted successfully.\nAI Negotiation achieved ${(achievedReduction * 100).toFixed(1)}% price reduction, saving $${savings.toFixed(2)}`);
+    }
+
+    function viewTicketDetails(ticketId) {
+        const ticket = APP_STATE.tickets.find(t => t.ticket_id === ticketId);
+        if (!ticket) return;
+        
+        document.getElementById('ticketDetailsTitle').textContent = ticket.title;
+        
+        const actions = [];
+        
+        if (ticket.status === 'open' && hasPermission('assign')) {
+            actions.push(`<button class="btn-primary" onclick="assignTicket('${ticket.ticket_id}')">Assign Ticket</button>`);
+        }
+        
+        if (ticket.status === 'in_progress') {
+            actions.push(`<button class="btn-success" onclick="completeTicket('${ticket.ticket_id}')">Mark Complete</button>`);
+        }
+        
+        if (!ticket.acknowledged && hasPermission('approve')) {
+            actions.push(`<button class="btn-warning" onclick="acknowledgeTicket('${ticket.ticket_id}')">Acknowledge</button>`);
+        }
+        
+        const offPeak = scheduleOffPeakMaintenance(ticket);
+        
+        document.getElementById('ticketDetailsContent').innerHTML = `
+            <div class="detail-section">
+                <h3>Information</h3>
+                <p><strong>Ticket ID:</strong> ${ticket.ticket_id}</p>
+                <p><strong>Machine:</strong> ${ticket.machine_id}</p>
+                <p><strong>Status:</strong> <span class="status-badge ${ticket.status}">${ticket.status.replace('_', ' ')}</span></p>
+                <p><strong>Priority:</strong> <span class="priority-badge ${ticket.priority}">${ticket.priority}</span></p>
+                <p><strong>Assigned To:</strong> ${ticket.assigned_to || 'Unassigned'}</p>
+                <p><strong>Reported By:</strong> ${ticket.reported_by}</p>
+                <p><strong>Failure Type:</strong> ${ticket.failure_type || 'N/A'}</p>
+                <p><strong>Description:</strong> ${ticket.description}</p>
+                <p><strong>Acknowledged:</strong> ${ticket.acknowledged ? `Yes (by ${ticket.acknowledged_by} at ${new Date(ticket.acknowledged_at).toLocaleString()})` : 'No'}</p>
+            </div>
+            
+            <div class="detail-section">
+                <h3>Work Order Details</h3>
+                <p><strong>Estimated Downtime:</strong> ${ticket.estimated_downtime_hours.toFixed(1)} hours</p>
+                <p><strong>Estimated Cost:</strong> $${ticket.cost_estimate.toFixed(2)}</p>
+                ${ticket.actual_downtime_hours ? `<p><strong>Actual Downtime:</strong> ${ticket.actual_downtime_hours.toFixed(1)} hours</p>` : ''}
+                ${ticket.actual_cost ? `<p><strong>Actual Cost:</strong> $${ticket.actual_cost.toFixed(2)}</p>` : ''}
+                ${ticket.actual_downtime_hours && ticket.estimated_downtime_hours ? `
+                    <p><strong>Downtime Variance:</strong> ${((ticket.actual_downtime_hours - ticket.estimated_downtime_hours) / ticket.estimated_downtime_hours * 100).toFixed(1)}%</p>
+                ` : ''}
+                ${ticket.actual_cost && ticket.cost_estimate ? `
+                    <p><strong>Cost Variance:</strong> ${((ticket.actual_cost - ticket.cost_estimate) / ticket.cost_estimate * 100).toFixed(1)}%</p>
+                ` : ''}
+            </div>
+            
+            ${offPeak.scheduled ? `
+                <div class="negotiation-info">
+                    Off-Peak Maintenance Scheduled: ${offPeak.window}<br>
+                    Estimated energy savings: ${offPeak.estimated_savings_kwh.toFixed(1)} kWh<br>
+                    Reason: ${offPeak.reason}
+                </div>
+            ` : ''}
+            
+            <div class="detail-section">
+                <h3>Repair Steps</h3>
+                <p>${ticket.repair_steps}</p>
+            </div>
+            
+            <div class="detail-section">
+                <h3>Actions</h3>
+                ${actions.join(' ') || '<p>No available actions</p>'}
+            </div>
+        `;
+        
+        document.getElementById('ticketDetailsModal').style.display = 'block';
+    }
+
+    function closeTicketDetailsModal() {
+        document.getElementById('ticketDetailsModal').style.display = 'none';
+    }
+
+    function viewOrderDetails(orderId) {
+        const order = APP_STATE.procurementOrders.find(o => o.order_id === orderId);
+        if (!order) return;
+        
+        const negotiation = negotiateSupplierPrice(order);
+        
+        document.getElementById('orderDetailsTitle').textContent = `Order ${order.order_id} Details`;
+        
+        document.getElementById('orderDetailsContent').innerHTML = `
+            <div class="report-section">
+                <h4>Order Information</h4>
+                <p><strong>Part:</strong> ${order.part_name} (${order.part_number})</p>
+                <p><strong>Quantity:</strong> ${order.quantity}</p>
+                <p><strong>Supplier:</strong> ${order.supplier}</p>
+                <p><strong>Status:</strong> <span class="status-badge ${order.status}">${order.status}</span></p>
+                <p><strong>Urgency:</strong> <span class="priority-badge ${order.urgency}">${order.urgency}</span></p>
+            </div>
+            
+            <div class="report-section">
+                <h4>Pricing & Negotiation</h4>
+                <p><strong>Base Price per Unit:</strong> $${order.base_price.toFixed(2)}</p>
+                <p><strong>Negotiated Price per Unit:</strong> $${order.negotiated_price.toFixed(2)}</p>
+                <p><strong>Total Cost:</strong> $${order.total_price.toFixed(2)}</p>
+                <p><strong>Total Savings:</strong> <span class="savings">$${order.savings.toFixed(2)} (${order.savings_percent.toFixed(1)}%)</span></p>
+                <p><strong>Strategy:</strong> ${order.negotiation_strategy}</p>
+            </div>
+            
+            <div class="negotiation-info">
+                <strong>AI Negotiation Analysis:</strong><br>
+                Target Reduction: ${negotiation.target_reduction.toFixed(1)}%<br>
+                Supplier Score: ${negotiation.supplier_score}/100<br>
+                Scoring Factors: Price (${negotiation.negotiation_factors.price_weight}), Reliability (${negotiation.negotiation_factors.reliability_weight}), Delivery (${negotiation.negotiation_factors.delivery_weight})<br>
+                Recommendation: ${negotiation.recommendation}
+            </div>
+            
+            <div class="report-section">
+                <h4>Delivery</h4>
+                <p><strong>Estimated Delivery:</strong> ${new Date(order.estimated_delivery).toLocaleDateString()}</p>
+            </div>
+        `;
+        
+        document.getElementById('orderDetailsModal').style.display = 'block';
+    }
+
+    function closeOrderDetailsModal() {
+        document.getElementById('orderDetailsModal').style.display = 'none';
+    }
+
+    function acknowledgeAlert(alertId) {
+        const alert = APP_STATE.alerts.find(a => a.alert_id === alertId);
+        if (alert) {
+            alert.acknowledged = true;
+            alert.acknowledged_by = APP_STATE.currentUser.username;
+            alert.acknowledged_at = new Date().toISOString();
+            render();
+        }
+    }
+
+    function acknowledgeTicket(ticketId) {
+        if (!hasPermission('approve')) {
+            alert('You do not have permission to acknowledge tickets');
+            return;
+        }
+        
+        const ticket = APP_STATE.tickets.find(t => t.ticket_id === ticketId);
+        if (ticket) {
+            ticket.acknowledged = true;
+            ticket.acknowledged_by = APP_STATE.currentUser.username;
+            ticket.acknowledged_at = new Date().toISOString();
+            closeTicketDetailsModal();
+            render();
+            alert('Ticket acknowledged successfully');
+        }
+    }
+
+    function assignTicket(ticketId) {
+        const technician = prompt('Enter technician username:');
+        if (!technician) return;
+        
+        const ticket = APP_STATE.tickets.find(t => t.ticket_id === ticketId);
+        if (ticket) {
+            ticket.assigned_to = technician;
+            ticket.status = 'in_progress';
+            closeTicketDetailsModal();
+            render();
+            alert('Ticket assigned successfully');
+        }
+    }
+
+    function completeTicket(ticketId) {
+        const notes = prompt('Enter completion notes:');
+        const downtime = prompt('Enter actual downtime (hours):');
+        const cost = prompt('Enter actual cost:');
+        
+        if (!notes || !downtime || !cost) return;
+        
+        const ticket = APP_STATE.tickets.find(t => t.ticket_id === ticketId);
+        if (ticket) {
+            ticket.status = 'completed';
+            ticket.completion_notes = notes;
+            ticket.actual_downtime_hours = parseFloat(downtime);
+            ticket.actual_cost = parseFloat(cost);
+            closeTicketDetailsModal();
+            render();
+            alert('Ticket completed successfully');
+        }
+    }
+
+    function approveOrder(orderId) {
+        if (!hasPermission('approve')) {
+            alert('You do not have permission to approve orders');
+            return;
+        }
+        
+        const order = APP_STATE.procurementOrders.find(o => o.order_id === orderId);
+        if (order) {
+            order.status = 'approved';
+            render();
+            alert('Order approved successfully');
+        }
+    }
+
+    function exportMachineData() {
+        exportToCSV(APP_STATE.machines, 'machine_data.csv');
+    }
+
+    function exportAnalyticsCSV() {
+        exportToCSV(APP_STATE.kpiHistory, 'kpi_history.csv');
+    }
+
+    function exportAnalyticsReport() {
+        const content = `Analytics Summary Report Total Optimizations: ${APP_STATE.optimizationActions.length}
+Energy Savings: ${APP_STATE.optimizationActions.reduce((sum, a) => sum + a.energy_saved_kwh, 0).toFixed(1)} kWh
+Cost Savings: $${APP_STATE.optimizationActions.reduce((sum, a) => sum + a.cost_saved, 0).toFixed(2)}
+CO2 Reduction: ${APP_STATE.optimizationActions.reduce((sum, a) => sum + a.co2_reduced_kg, 0).toFixed(1)} kg`;
+exportToPDF('Analytics Report', content);
+    }
+
+    function exportMaintenanceRecords() {
+        exportToCSV(APP_STATE.tickets, 'maintenance_tickets.csv');
+    }
+
+    function exportProcurementOrders() {
+        exportToCSV(APP_STATE.procurementOrders, 'procurement_orders.csv');
+    }
+
+    function exportInventoryData() {
+        exportToCSV(APP_STATE.inventory, 'inventory.csv');
+    }
+
+    generateMockData();
+    render();
+
+    setInterval(() => {
+        if (APP_STATE.currentUser) {
+            const timeRemaining = APP_STATE.tokenExpiry - Date.now();
+            if (timeRemaining < 5 * 60 * 1000 && timeRemaining > 0) {
+                console.log('Session expiring soon. Consider re-authentication.');
+            }
+        }
+    }, 60000);
+    // ===== VOICE LOG HELPER FUNCTIONS - ADD HERE =====
+        function testVoiceAlert() {
+            const testMessage = "This is a test voice alert from FactoryBrain AI. Voice alert system is functioning correctly.";
+            speakVoiceAlert(testMessage, false);
+        }
+
+        function replayVoiceCommand(command) {
+            speakVoiceAlert(command, true);
+        }
+
+        function exportVoiceLog() {
+            if (!APP_STATE.voiceCommandLog || APP_STATE.voiceCommandLog.length === 0) {
+                alert('No voice commands to export');
+                return;
+            }
+            exportToCSV(APP_STATE.voiceCommandLog, 'voice_command_log.csv');
+        }
+        // ===== END VOICE LOG HELPERS =====
+</script>
+</body>
+</html>
