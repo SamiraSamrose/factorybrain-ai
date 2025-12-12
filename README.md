@@ -5,6 +5,7 @@ Autonomous Process Optimization for Smart Manufacturing Plants
 ## Overview
 
 FactoryBrain AI is a comprehensive multi-agent industrial control system that monitors machinery, predicts failures, optimizes energy usage, negotiates spare-part procurement and communicates with operators using natural voice interfaces.
+
 The project focuses on advancing robotics and automation, drawing inspiration from leaders such as Google DeepMind’s industrial AI, Amazon Robotics. It emphasizes ultra-low-latency inference for IoT and edge devices to enable real-time decision-making. Enterprise-grade AI agents are designed to deliver massive-scale optimization across complex operations. The work aligns closely with the priorities of teams at Amazon Robotics, Google Cloud, Meta Infrastructure and AWS IoT. By reducing downtime and boosting efficiency at scale, the solution saves millions and industries strongly value infrastructure that delivers this level of performance.
 
 ## Links
