@@ -1,0 +1,94 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: factorybrain-postgres
+    environment:
+      POSTGRES_USER: factorybrain
+      POSTGRES_PASSWORD: factory_secure_pass
+      POSTGRES_DB: factorybrain
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - factorybrain-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: factorybrain-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - factorybrain-network
+
+  mqtt-broker:
+    image: eclipse-mosquitto:2
+    container_name: factorybrain-mqtt
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt_data:/mosquitto/data
+    networks:
+      - factorybrain-network
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    container_name: factorybrain-backend
+    environment:
+      DATABASE_URL: postgresql://factorybrain:factory_secure_pass@postgres:5432/factorybrain
+      REDIS_URL: redis://redis:6379
+      IOT_BROKER_HOST: mqtt-broker
+      IOT_BROKER_PORT: 1883
+      ELEVENLABS_API_KEY: ${ELEVENLABS_API_KEY}
+      CEREBRAS_API_KEY: ${CEREBRAS_API_KEY}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+      RAINDROP_BUCKET_ENDPOINT: ${RAINDROP_BUCKET_ENDPOINT}
+      RAINDROP_SQL_ENDPOINT: ${RAINDROP_SQL_ENDPOINT}
+      RAINDROP_MEMORY_ENDPOINT: ${RAINDROP_MEMORY_ENDPOINT}
+      RAINDROP_INFERENCE_ENDPOINT: ${RAINDROP_INFERENCE_ENDPOINT}
+      VULTR_KUBERNETES_ENDPOINT: ${VULTR_KUBERNETES_ENDPOINT}
+      VULTR_OBJECT_STORAGE_ENDPOINT: ${VULTR_OBJECT_STORAGE_ENDPOINT}
+      VULTR_ACCESS_KEY: ${VULTR_ACCESS_KEY}
+      VULTR_SECRET_KEY: ${VULTR_SECRET_KEY}
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - redis
+      - mqtt-broker
+    volumes:
+      - ../ml_models:/app/ml_models
+      - ../data:/app/data
+      - ../logs:/app/logs
+    networks:
+      - factorybrain-network
+    command: uvicorn backend.app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: frontend/Dockerfile
+    container_name: factorybrain-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - factorybrain-network
+
+volumes:
+  postgres_data:
+  redis_data:
+  mqtt_data:
+
+networks:
+  factorybrain-network:
+    driver: bridge

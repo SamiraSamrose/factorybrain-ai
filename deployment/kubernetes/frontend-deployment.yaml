@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factorybrain-frontend
+  namespace: factorybrain
+  labels:
+    app: factorybrain-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: factorybrain-frontend
+  template:
+    metadata:
+      labels:
+        app: factorybrain-frontend
+    spec:
+      containers:
+      - name: frontend
+        image: factorybrain/frontend:latest
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            port: 80
+          initialDelaySeconds: 10
+          periodSeconds: 5

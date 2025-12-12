@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: factorybrain-ml-worker
+  namespace: factorybrain
+  labels:
+    app: factorybrain-ml-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: factorybrain-ml-worker
+  template:
+    metadata:
+      labels:
+        app: factorybrain-ml-worker
+    spec:
+      containers:
+      - name: ml-worker
+        image: factorybrain/backend:latest
+        command: ["python", "-m", "backend.app.workers.ml_worker"]
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: factorybrain-secrets
+              key: database-url
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: factorybrain-secrets
+              key: redis-url
+        - name: CEREBRAS_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: factorybrain-secrets
+              key: cerebras-api-key
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        volumeMounts:
+        - name: ml-models
+          mountPath: /app/ml_models
+      volumes:
+      - name: ml-models
+        persistentVolumeClaim:
+          claimName: ml-models-pvc
